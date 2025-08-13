@@ -1,36 +1,21 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Family Tree
 
-## Getting Started
+## Goal
+I want to make a family tree app, preferably using a single framework like next.js. This is only for hobby project and is not related to my startup. 
 
-First, run the development server:
+Basically I want users to add people, their relations very easily and intuitively. They should be able to export and import the data. They should be able to visualize this is a nice tree and more formats. They should also be able to export in image or pdf formats so that it's shareable on social media. 
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Current Status
+- App shell with navbar and routes (`/people`, `/tree`) added. Navbar uses shadcn `NavigationMenu`.
+- Theme switcher in navbar using Zustand store and `lucide-react` icons (Sun/Moon). Preference is persisted in `localStorage` and respects system preference on first load.
+- Domain model (v1) types defined in `src/lib/domain.ts`.
+- Home page links to People and Tree.
+- Local DB via Dexie configured in `src/lib/db.ts` (v1 schema: `people`, `unions`, `parentChildLinks`).
+- Zustand store for people in `src/lib/store.ts` with optimistic CRUD.
+- People page (`/people`) provides add/edit/delete and list UI.
+- Relationships page (`/relations`) to create unions and parent→child links.
+- Relations state in `src/lib/relationsStore.ts` with optimistic CRUD.
+- Tree visualization (Step 7): `/tree` renders a React Flow graph of descendants from a selected root with gender-based node coloring and styled edges. Layout is top-down; union edges are horizontal, parent-child edges vertical.
+- Import/Export (Step 8): `/data` page supports exporting JSON v1 and importing with `replace` or `merge` strategies.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See the step-by-step plan in `plan.md`.

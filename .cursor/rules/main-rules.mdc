@@ -1,0 +1,13 @@
+---
+description: Main rules for the project
+alwaysApply: true
+---
+* Read the file @README.md to understand the project.
+* Always update the README.md file to reflect the current state of the project.
+* See the project plan in @plan.md to understand the project.
+* We are using Next.js latest version of App router, Tailwind v4 and shadcn/ui.
+* Add whichever shadcn components you need using `npx shadcn@latest add <component-name>`
+* We are using TypeScript for the project.
+* We are using Zustand for the state management.
+* We are using Dexie for the database.
+* We are using SVG for the visualization.
