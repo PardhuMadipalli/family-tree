@@ -18,8 +18,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, Trash } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 export default function RelationsPage() {
   const { people, isHydrated: isPeopleHydrated, hydrate: hydratePeople } = usePeopleStore();
@@ -82,19 +93,11 @@ export default function RelationsPage() {
         </div>
         <ul className="text-sm space-y-1">
           {unions.map((u) => (
-            <li key={u.id} className="flex items-center justify-between gap-2">
+            <li key={u.id} className="flex items-center justify-between gap-2 hover:bg-muted/50 rounded-md py-1">
               <span>
                 {u.partnerIds.map((id) => people.find((p) => p.id === id)?.givenName || 'Unknown').join(' + ')}
               </span>
-              <Button
-                onClick={async () => {
-                  const ok = window.confirm('Delete this union?');
-                  if (ok) await deleteUnion(u.id);
-                }}
-                variant="outline"
-              >
-                Remove
-              </Button>
+              <DeleteUnionDialog union={u} people={people} onDelete={deleteUnion} />
             </li>
           ))}
         </ul>
@@ -122,26 +125,105 @@ export default function RelationsPage() {
         </div>
         <ul className="text-sm space-y-1">
           {parentChildLinks.map((l) => (
-            <li key={l.id} className="flex items-center justify-between gap-2">
+            <li key={l.id} className="flex items-center justify-between gap-2 hover:bg-muted/50 rounded-md py-1">
               <span>
                 {(l.parentIds.map((id) => people.find((p) => p.id === id)?.givenName || 'Unknown').join(' & '))}
                 {' → '}
                 {people.find((p) => p.id === l.childId)?.givenName || 'Unknown'}
               </span>
-              <Button
-                onClick={async () => {
-                  const ok = window.confirm('Delete this link?');
-                  if (ok) await deleteParentChildLink(l.id);
-                }}
-                variant="outline"
-              >
-                Remove
-              </Button>
+              <DeleteParentChildLinkDialog link={l} people={people} onDelete={deleteParentChildLink} />
             </li>
           ))}
         </ul>
       </section>
     </div>
+  );
+}
+
+function DeleteUnionDialog({
+  union,
+  people,
+  onDelete,
+}: {
+  union: { id: string; partnerIds: string[] };
+  people: { id: string; givenName: string; familyName?: string }[];
+  onDelete: (id: string) => Promise<void>;
+}) {
+  const partnerNames = union.partnerIds
+    .map((id) => people.find((p) => p.id === id)?.givenName || 'Unknown')
+    .join(' + ');
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="destructive" size="icon">
+          <Trash className="size-4" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Union</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete the union between {partnerNames}? This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={async () => {
+              await onDelete(union.id);
+            }}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Delete Union
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+function DeleteParentChildLinkDialog({
+  link,
+  people,
+  onDelete,
+}: {
+  link: { id: string; parentIds: string[]; childId: string };
+  people: { id: string; givenName: string; familyName?: string }[];
+  onDelete: (id: string) => Promise<void>;
+}) {
+  const parentNames = link.parentIds
+    .map((id) => people.find((p) => p.id === id)?.givenName || 'Unknown')
+    .join(' & ');
+  const childName = people.find((p) => p.id === link.childId)?.givenName || 'Unknown';
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="destructive" size="icon">
+          <Trash className="size-4" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Parent-Child Link</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete the link between {parentNames} and {childName}? This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={async () => {
+              await onDelete(link.id);
+            }}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Delete Link
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 

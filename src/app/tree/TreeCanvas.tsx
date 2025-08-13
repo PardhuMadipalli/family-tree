@@ -25,7 +25,26 @@ export default function TreeCanvas() {
     if (!relHydrated) void hydrateRelations();
   }, [relHydrated, hydrateRelations]);
 
-  const [rootId, setRootId] = useState<string>('none');
+  const [rootId, setRootId] = useState<string>('');
+  const ROOT_STORAGE_KEY = 'family-tree:selectedRootId';
+
+  // Load stored root or fallback to first person when people are ready
+  useEffect(() => {
+    if (!peopleHydrated) return;
+    if (people.length === 0) return;
+    const stored = typeof window !== 'undefined' ? localStorage.getItem(ROOT_STORAGE_KEY) : null;
+    const validIds = new Set(people.map((p) => p.id));
+    const next = stored && validIds.has(stored) ? stored : people[0].id;
+    if (next !== rootId) setRootId(next);
+  }, [peopleHydrated, people]);
+
+  // Persist root on change
+  useEffect(() => {
+    if (!rootId) return;
+    try {
+      localStorage.setItem(ROOT_STORAGE_KEY, rootId);
+    } catch { }
+  }, [rootId]);
 
   const flow = useMemo<{ nodes: Node[]; edges: Edge[] }>(
     () => buildDescendantsFlow(rootId, people, parentChildLinks, unions),
@@ -111,7 +130,7 @@ export default function TreeCanvas() {
   return (
     <div className="space-y-3 h-full">
       <div className="flex items-center gap-2">
-        <label className="text-sm">Root:</label>
+        <label className="text-sm">Root (required):</label>
         <Select
           value={rootId}
           onValueChange={(value) => setRootId(value)}
@@ -120,7 +139,6 @@ export default function TreeCanvas() {
             <SelectValue placeholder="Select a person" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none">None (no highlight)</SelectItem>
             {people.map((p) => (
               <SelectItem key={p.id} value={p.id}>
                 {p.givenName} {p.familyName ?? ''}
@@ -131,14 +149,14 @@ export default function TreeCanvas() {
         <div className="ml-auto flex items-center gap-2">
           <Button
             onClick={exportPNG}
-            disabled={exporting}
+            disabled={exporting || !rootId}
             variant="outline"
           >
             Export PNG
           </Button>
           <Button
             onClick={exportPDF}
-            disabled={exporting}
+            disabled={exporting || !rootId}
             variant="outline"
           >
             Export PDF

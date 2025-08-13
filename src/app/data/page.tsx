@@ -2,6 +2,10 @@
 
 import { useState } from 'react';
 import { exportData, importData, isSchemaEnvelopeV1, type ImportStrategy } from '@/lib/io';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DownloadIcon, Merge, RotateCcw } from 'lucide-react';
 
 export default function DataPage() {
   const [busy, setBusy] = useState(false);
@@ -54,31 +58,58 @@ export default function DataPage() {
 
       <section className="space-y-2">
         <h3 className="font-medium">Export</h3>
-        <button
+        <Button
           onClick={handleExport}
           disabled={busy}
-          className="inline-flex items-center rounded-md px-4 h-9 border border-black/10 dark:border-white/15 hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-50"
         >
+          <DownloadIcon className="w-4 h-4" />
           Download JSON
-        </button>
+        </Button>
       </section>
 
       <section className="space-y-2">
         <h3 className="font-medium">Import</h3>
         <div className="flex items-center gap-3">
-          <select
+          {/* <Select
             value={strategy}
-            onChange={(e) => setStrategy(e.target.value as ImportStrategy)}
-            className="h-9 rounded-md border border-black/15 dark:border-white/15 px-2 bg-transparent"
+            onValueChange={(value) => setStrategy(value as ImportStrategy)}
           >
-            <option value="replace">Replace (clear existing)</option>
-            <option value="merge">Merge (upsert by id)</option>
-          </select>
+            <SelectTrigger>
+              <SelectValue placeholder="Select strategy" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="replace">Replace (clear existing)</SelectItem>
+              <SelectItem value="merge">Merge (upsert by id)</SelectItem>
+            </SelectContent>
+          </Select> */}
+          <div className="flex gap-0">
+            <Button
+              variant={strategy === 'replace' ? 'default' : 'secondary'}
+              className={`cursor-pointer ${strategy === 'replace' ? 'bg-primary text-primary-foreground' : 'bg-muted'} rounded-r-none w-[100px]`}
+              onClick={() => {
+                setStrategy('replace');
+              }}
+              aria-label="Replace"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Replace
+            </Button>
+            <Button
+              variant={strategy === 'merge' ? 'default' : 'secondary'}
+              className={`cursor-pointer ${strategy === 'merge' ? 'bg-primary text-primary-foreground' : 'bg-muted'} rounded-l-none w-[100px]`}
+              onClick={() => {
+                setStrategy('merge');
+              }}
+              aria-label="Merge"
+            >
+              <Merge className="w-4 h-4" /> Merge
+            </Button>
+          </div>
           <label className="inline-flex items-center gap-2">
             <span className="inline-flex items-center rounded-md px-4 h-9 border border-black/10 dark:border-white/15 hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer">
               Choose file
             </span>
-            <input type="file" accept="application/json" onChange={handleImport} className="hidden" />
+            <Input type="file" accept="application/json" onChange={handleImport} className="hidden" />
           </label>
         </div>
         {message ? <p className="text-sm text-black/70 dark:text-white/70">{message}</p> : null}

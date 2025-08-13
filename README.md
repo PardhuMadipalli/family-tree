@@ -15,7 +15,7 @@ Basically I want users to add people, their relations very easily and intuitivel
 - People page (`/people`) provides add/edit/delete and list UI.
 - Relationships page (`/relations`) to create unions and parent→child links.
 - Relations state in `src/lib/relationsStore.ts` with optimistic CRUD.
-- Tree visualization (Step 7): `/tree` renders a React Flow graph of descendants from a selected root with gender-based node coloring and styled edges. Layout is top-down; union edges are horizontal, parent-child edges vertical.
+ - Tree visualization (Step 7): `/tree` renders a React Flow graph from a required root. The root and their spouses are level 0; descendants increment levels (+1 per generation), ancestors decrement levels (-1 per generation). Layout is top-down; union edges are horizontal, parent-child edges vertical. Only nodes reachable via parent/child from the root are shown. The last selected root is persisted in `localStorage` and restored on revisit.
 - Import/Export (Step 8): `/data` page supports exporting JSON v1 and importing with `replace` or `merge` strategies.
 
 See the step-by-step plan in `plan.md`.

@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { DataTable } from "@/components/data-table";
+import { columns, type PeopleRow } from "./columns";
 
 type Gender = "male" | "female" | "other" | "unknown";
 
@@ -122,12 +124,12 @@ export default function PeoplePage() {
         <h3 className="font-medium">All people</h3>
         {isHydrated && people.length === 0 ? (
           <p className="text-sm text-black/70 dark:text-white/70">No people yet. Add the first person above.</p>
-        ) : null}
-        <ul className="divide-y divide-black/10 dark:divide-white/10">
-          {people.map((p) => (
-            <PersonListItem key={p.id} personId={p.id} />
-          ))}
-        </ul>
+        ) : (
+          <DataTable<PeopleRow, unknown>
+            columns={columns}
+            data={people as PeopleRow[]}
+          />
+        )}
       </section>
     </div>
   );
