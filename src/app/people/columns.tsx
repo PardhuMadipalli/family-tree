@@ -1,20 +1,22 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
-import type { PersonV1 } from "@/lib/domain";
-import { Mars, Venus, CircleHelp, Pencil, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useState, useEffect } from "react";
+import type { PersonV1 } from "@/lib/domain";
 import { usePeopleStore } from "@/lib/store";
+import { ColumnDef } from "@tanstack/react-table";
+import { Baby, CalendarClock, CircleHelp, Eye, Mars, Pencil, Trash, UsersRound, Venus } from "lucide-react";
+import { useEffect, useState } from "react";
 
 type Gender = "male" | "female" | "other" | "unknown";
 
 export type PeopleRow = Pick<PersonV1, "id" | "givenName" | "familyName" | "birthDate" | "gender"> & {
   spouses?: string;
+  parents?: string;
+  children?: string;
 };
 
 function deriveAge(birthDate?: string) {
@@ -35,6 +37,73 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="text-xs text-black/70 dark:text-white/70">{label}</span>
       {children}
     </label>
+  );
+}
+
+function ViewPersonDialog({ person }: { person: PeopleRow }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <Eye className="size-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="w-fit sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{person.givenName} {person.familyName ?? ""}</DialogTitle>
+        </DialogHeader>
+        <div className="flex items-center gap-2 text-muted-foreground">
+          {person.gender === "male" ? (
+            <Mars className="size-4 text-blue-600" />
+          ) : person.gender === "female" ? (
+            <Venus className="size-4 text-pink-600" />
+          ) : (
+            <CircleHelp className="size-4" />
+          )}
+          <span className="capitalize">{person.gender ?? "unknown"}</span>
+          {person.birthDate ? (
+            <span className="inline-flex items-center gap-1 ml-3">
+              <CalendarClock className="size-4" />
+              <span>{new Date(person.birthDate).toLocaleDateString()}</span>
+            </span>
+          ) : null}
+        </div>
+        {person.spouses ? (
+          <div className="flex items-start gap-2">
+            <UsersRound className="size-4 mt-0.5" />
+            <div className="truncate">
+              <span className="text-muted-foreground">Spouse(s): </span>
+              <span>{person.spouses}</span>
+            </div>
+          </div>
+        ) : null}
+        {person.parents ? (
+          <div className="flex items-start gap-2">
+            <UsersRound className="size-4 mt-0.5" />
+            <div className="truncate">
+              <span className="text-muted-foreground">Parents: </span>
+              <span>{person.parents}</span>
+            </div>
+          </div>
+        ) : null}
+        {person.children ? (
+          <div className="flex items-start gap-2">
+            <Baby className="size-4 mt-0.5" />
+            <div className="truncate">
+              <span className="text-muted-foreground">Children: </span>
+              <span>{person.children}</span>
+            </div>
+          </div>
+        ) : null}
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Close</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -218,6 +287,7 @@ export const columns: ColumnDef<PeopleRow>[] = [
       const person = row.original;
       return (
         <div className="flex items-center gap-2">
+          <ViewPersonDialog person={person} />
           <EditPersonDialog person={person} />
           <DeletePersonButton person={person} />
         </div>

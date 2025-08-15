@@ -5,6 +5,8 @@ import type { NodeProps } from '@xyflow/react';
 import { Handle, Position } from '@xyflow/react';
 import { cn } from '@/lib/utils';
 
+const handlesInvisible = true;
+
 type PersonNodeData = {
   label: string;
   sublabel?: string;
@@ -38,11 +40,11 @@ function PersonNode({ data, selected }: NodeProps) {
       ) : null}
 
       {/* Handles for parent/child vertical edges */}
-      <Handle type="source" position={Position.Bottom} id="bottom" />
-      <Handle type="target" position={Position.Top} id="top" />
+      <Handle type="source" position={Position.Bottom} id="bottom" className={cn(handlesInvisible && 'opacity-0')} />
+      <Handle type="target" position={Position.Top} id="top" className={cn(handlesInvisible && 'opacity-0')} />
       {/* Handles for union horizontal edges */}
-      <Handle type="source" position={Position.Right} id="right" />
-      <Handle type="target" position={Position.Left} id="left" />
+      <Handle type="source" position={Position.Right} id="right" className={cn(handlesInvisible && 'opacity-0')} />
+      <Handle type="target" position={Position.Left} id="left" className={cn(handlesInvisible && 'opacity-0')} />
     </div>
   );
 }
