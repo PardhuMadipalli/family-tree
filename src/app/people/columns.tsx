@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import type { PersonV1 } from "@/lib/domain";
-import { Mars, Venus, CircleHelp } from "lucide-react";
+import { Mars, Venus, CircleHelp, Pencil, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,9 @@ import { usePeopleStore } from "@/lib/store";
 
 type Gender = "male" | "female" | "other" | "unknown";
 
-export type PeopleRow = Pick<PersonV1, "id" | "givenName" | "familyName" | "birthDate" | "gender">;
+export type PeopleRow = Pick<PersonV1, "id" | "givenName" | "familyName" | "birthDate" | "gender"> & {
+  spouses?: string;
+};
 
 function deriveAge(birthDate?: string) {
   if (!birthDate) return undefined;
@@ -60,8 +62,8 @@ function EditPersonDialog({ person }: { person: PeopleRow }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          Edit
+        <Button variant="ghost" size="icon">
+          <Pencil className="size-4" />
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -168,9 +170,9 @@ function DeletePersonButton({ person }: { person: PeopleRow }) {
         if (ok) await deletePerson(person.id);
       }}
       variant="destructive"
-      size="sm"
+      size="icon"
     >
-      Delete
+      <Trash className="size-4" />
     </Button>
   );
 }
@@ -204,6 +206,10 @@ export const columns: ColumnDef<PeopleRow>[] = [
       const v = row.getValue<string>("birthDate");
       return v ? new Date(v).toLocaleDateString() : "";
     },
+  },
+  {
+    accessorKey: "spouses",
+    header: "Spouse(s)",
   },
   {
     id: "actions",
