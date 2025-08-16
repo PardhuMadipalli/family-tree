@@ -148,6 +148,7 @@ export function buildDescendantsFlow(
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
+  // Add person nodes
   for (const [lvlStr, ids] of Object.entries(levels)) {
     const lvl = Number(lvlStr);
     const y = (lvl - minLevel) * ySpacing;
@@ -174,16 +175,87 @@ export function buildDescendantsFlow(
     });
   }
 
-  // Parent-child edges only within reachable subgraph
-  for (const link of parentChildLinks) {
-    const child = link.childId;
-    if (!personLevel.has(child)) continue;
-    for (const pid of link.parentIds) {
-      if (!personLevel.has(pid)) continue;
+  // Create union nodes and connect spouses to unions
+  const unionToChildren = new Map<string, string[]>(); // unionId -> childIds
+  const unionPositions = new Map<string, { x: number; y: number }>();
+
+  for (const u of unions) {
+    if (u.partnerIds.length < 2) continue;
+    const [a, b] = u.partnerIds;
+    if (!personLevel.has(a) || !personLevel.has(b)) continue;
+
+    // Create union node
+    const unionId = `union-${u.id}`;
+    const personA = personById[a];
+    const personB = personById[b];
+    if (!personA || !personB) continue;
+
+    // Position union node between the two spouses
+    const personALevel = personLevel.get(a)!;
+    const personBLevel = personLevel.get(b)!;
+    const personAIndex = levels[personALevel]?.indexOf(a) ?? 0;
+    const personBIndex = levels[personBLevel]?.indexOf(b) ?? 0;
+
+    // Ensure both spouses are at the same level for proper union positioning
+    if (personALevel !== personBLevel) continue;
+
+    const unionX = (personAIndex + personBIndex) * xSpacing / 2;
+    const unionY = (personALevel - minLevel) * ySpacing + ySpacing * 0.3; // Position below spouses
+
+    unionPositions.set(unionId, { x: unionX, y: unionY });
+
+    nodes.push({
+      id: unionId,
+      position: { x: unionX, y: unionY },
+      data: { unionId: u.id },
+      type: 'unionNode',
+    });
+
+    // Connect spouses to union - use bottom handles for both spouses
+    // Determine which partner is on the left and which is on the right
+    const leftPartner = personAIndex < personBIndex ? a : b;
+    const rightPartner = personAIndex < personBIndex ? b : a;
+
+    edges.push({
+      id: `spouse-${leftPartner}-union`,
+      source: leftPartner,
+      target: unionId,
+      animated: false,
+      sourceHandle: 'bottom',
+      targetHandle: 'left',
+      style: { stroke: '#6b7280', strokeDasharray: '6 4' },
+      zIndex: 0,
+    });
+
+    edges.push({
+      id: `spouse-${rightPartner}-union`,
+      source: rightPartner,
+      target: unionId,
+      animated: false,
+      sourceHandle: 'bottom',
+      targetHandle: 'right',
+      style: { stroke: '#6b7280', strokeDasharray: '6 4' },
+      zIndex: 0,
+    });
+
+    // Find children of this union
+    const children = parentChildLinks
+      .filter(link => link.parentIds.includes(a) && link.parentIds.includes(b))
+      .map(link => link.childId);
+
+    if (children.length > 0) {
+      unionToChildren.set(unionId, children);
+    }
+  }
+
+  // Connect union nodes to children
+  for (const [unionId, childIds] of unionToChildren.entries()) {
+    for (const childId of childIds) {
+      if (!personLevel.has(childId)) continue;
       edges.push({
-        id: `pc-${pid}-${child}`,
-        source: pid,
-        target: child,
+        id: `union-${unionId}-${childId}`,
+        source: unionId,
+        target: childId,
         animated: false,
         sourceHandle: 'bottom',
         targetHandle: 'top',
@@ -193,21 +265,33 @@ export function buildDescendantsFlow(
     }
   }
 
-  // Union edges only within reachable subgraph; partners share the same level
-  for (const u of unions) {
-    if (u.partnerIds.length < 2) continue;
-    const [a, b] = u.partnerIds;
-    if (!personLevel.has(a) || !personLevel.has(b)) continue;
-    edges.push({
-      id: `union-${u.id}`,
-      source: a,
-      target: b,
-      animated: false,
-      sourceHandle: 'right',
-      targetHandle: 'left',
-      style: { stroke: '#6b7280', strokeDasharray: '6 4' },
-      zIndex: 0,
-    });
+  // Handle parent-child relationships that don't go through unions
+  // (single parents or cases where not both parents are in the same union)
+  for (const link of parentChildLinks) {
+    const child = link.childId;
+    if (!personLevel.has(child)) continue;
+
+    // Check if this child is already connected through a union
+    const isConnectedThroughUnion = Array.from(unionToChildren.values()).some(children =>
+      children.includes(child)
+    );
+
+    if (!isConnectedThroughUnion) {
+      // Connect directly from parents to child
+      for (const pid of link.parentIds) {
+        if (!personLevel.has(pid)) continue;
+        edges.push({
+          id: `pc-${pid}-${child}`,
+          source: pid,
+          target: child,
+          animated: false,
+          sourceHandle: 'bottom',
+          targetHandle: 'top',
+          style: { stroke: '#4f46e5' },
+          zIndex: 1,
+        });
+      }
+    }
   }
 
   return { nodes, edges };

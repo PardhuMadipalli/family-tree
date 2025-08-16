@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, TreePalm } from "lucide-react";
 import "./globals.css";
 import {
   NavigationMenu,
@@ -51,8 +51,8 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <header className="border-b border-black/10 dark:border-white/10 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
-            <Link href="/" className="text-lg font-semibold hover:opacity-90">
-              Family Tree
+            <Link href="/" className="text-lg font-semibold hover:opacity-90 flex flex-row gap-2">
+              <TreePalm className="w-6 h-6" /> Family Tree
             </Link>
             <div className="flex items-center gap-3">
               <NavigationMenu className="gap-3">

@@ -10,6 +10,7 @@ import { toPng } from 'html-to-image';
 import jsPDF from 'jspdf';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PersonNode from './PersonNode';
+import UnionNode from './UnionNode';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -174,7 +175,7 @@ export default function TreeCanvas() {
           nodesConnectable={false}
           elementsSelectable={true}
           edgesFocusable={true}
-          nodeTypes={{ personNode: PersonNode }}
+          nodeTypes={{ personNode: PersonNode, unionNode: UnionNode }}
           colorMode={theme === "dark" ? "dark" : "light"}
         >
           <Background />
