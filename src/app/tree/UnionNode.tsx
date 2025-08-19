@@ -1,25 +1,24 @@
 "use client";
 
-import { memo } from 'react';
+import { cn } from '@/lib/utils';
 import type { NodeProps } from '@xyflow/react';
 import { Handle, Position } from '@xyflow/react';
+import { memo } from 'react';
 
 type UnionNodeData = {
   unionId: string;
 };
 
+export const unionNodeHeight: number = 20;
+export const unionNodeWidth: number = 20;
+
 function UnionNode({ data, selected }: NodeProps) {
   return (
     <div
-      style={{
-        boxShadow: selected ? '0 0 0 2px rgba(59,130,246,.5)' : undefined,
-      }}
-      className="w-4 h-4 rounded-full bg-gray-400 dark:bg-gray-600 border-2 border-gray-600 dark:border-gray-400"
+      className={cn(`size-[${unionNodeWidth}px] rounded-full bg-gray-400 dark:bg-gray-600 border-2 border-gray-600 dark:border-gray-400`,
+        selected && "border-blue-500")}
     >
-      {/* Handles for incoming edges from spouses */}
-      <Handle type="target" position={Position.Left} id="left" />
-      <Handle type="target" position={Position.Right} id="right" />
-      {/* Handle for outgoing edges to children */}
+      <Handle type="target" position={Position.Top} id="top" />
       <Handle type="source" position={Position.Bottom} id="bottom" />
     </div>
   );

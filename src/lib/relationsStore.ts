@@ -30,6 +30,7 @@ export const useRelationsStore = create<RelationsState>((set, get) => ({
       getAllUnions(),
       getAllParentChildLinks(),
     ]);
+    console.log('Hydrated relations', unions.length, parentChildLinks.length);
     set({ unions, parentChildLinks, isHydrated: true });
   },
   addUnion: async (partnerIds, params) => {

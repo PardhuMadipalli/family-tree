@@ -22,6 +22,7 @@ export const usePeopleStore = create<PeopleState>((set, get) => ({
   isHydrated: false,
   hydrate: async () => {
     const people = await getAllPeople();
+    console.log('Hydrated people', people.length);
     set({ people, isHydrated: true });
   },
   addPerson: async (input) => {

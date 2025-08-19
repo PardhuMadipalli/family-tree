@@ -1,18 +1,19 @@
 "use client";
 
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { layoutWithElk } from '@/lib/elkLayout';
 import { useRelationsStore } from '@/lib/relationsStore';
 import { usePeopleStore } from '@/lib/store';
-import { buildDescendantsFlow } from '@/lib/treeLayout';
+import { applyLayout, buildDescendantsFlow, buildGraphStructure } from '@/lib/treeLayout';
 import { useThemeStore } from '@/store/themes-store';
-import { applyEdgeChanges, applyNodeChanges, Background, Controls, EdgeChange, NodeChange, ReactFlow, type Edge, type Node } from '@xyflow/react';
+import { applyEdgeChanges, applyNodeChanges, Background, Controls, EdgeChange, NodeChange, ReactFlow, ReactFlowInstance, type Edge, type Node } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { toPng } from 'html-to-image';
 import jsPDF from 'jspdf';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PersonNode from './PersonNode';
 import UnionNode from './UnionNode';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function TreeCanvas() {
   const { people, isHydrated: peopleHydrated, hydrate: hydratePeople } = usePeopleStore();
@@ -31,6 +32,7 @@ export default function TreeCanvas() {
 
   // Load stored root or fallback to first person when people are ready
   useEffect(() => {
+    console.log('Loading root');
     if (!peopleHydrated) return;
     if (people.length === 0) return;
     const stored = typeof window !== 'undefined' ? localStorage.getItem(ROOT_STORAGE_KEY) : null;
@@ -41,30 +43,39 @@ export default function TreeCanvas() {
 
   // Persist root on change
   useEffect(() => {
+    console.log('Persisting root');
     if (!rootId) return;
     try {
       localStorage.setItem(ROOT_STORAGE_KEY, rootId);
     } catch { }
   }, [rootId]);
 
-  const flow = useMemo<{ nodes: Node[]; edges: Edge[] }>(
-    () => buildDescendantsFlow(rootId, people, parentChildLinks, unions),
-    [rootId, people, parentChildLinks, unions]
-  );
-
-  const [nodes, setNodes] = useState<Node[]>(flow.nodes);
-  const [edges, setEdges] = useState<Edge[]>(flow.edges);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
 
   useEffect(() => {
-    setNodes(flow.nodes);
-    setEdges(flow.edges);
-  }, [flow]);
+    console.log('Layouting');
+    const layout = async () => {
+      const { nodes: graphNodes, edges: graphEdges } = buildGraphStructure(rootId, people, parentChildLinks, unions);
+      const { nodes, edges } = await layoutWithElk(graphNodes, graphEdges);
+      console.log('flow:', nodes.length, edges.length);
+      setNodes(nodes);
+      setEdges(edges);
+    };
+    if (rootId && people.length > 0 && (parentChildLinks.length > 0 || unions.length > 0)) {
+      layout();
+    }
+  }, [rootId, people, parentChildLinks, unions]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => applyNodeChanges(changes, nds));
   }, []);
   const onEdgesChange = useCallback((changes: EdgeChange[]) => {
     setEdges((eds) => applyEdgeChanges(changes, eds));
+  }, []);
+
+  const onInit = useCallback((reactFlowInstance: ReactFlowInstance) => {
+    reactFlowInstance.fitView();
   }, []);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -170,6 +181,7 @@ export default function TreeCanvas() {
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
+          onInit={onInit}
           fitView={true}
           nodesDraggable
           nodesConnectable={false}

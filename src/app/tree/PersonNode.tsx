@@ -7,6 +7,9 @@ import { cn } from '@/lib/utils';
 
 const handlesInvisible = true;
 
+export const personNodeHeight: number = 30;
+export const personNodeWidth: number = 100;
+
 type PersonNodeData = {
   label: string;
   sublabel?: string;
@@ -25,19 +28,15 @@ function PersonNode({ data, selected }: NodeProps) {
   const d = data as PersonNodeData;
   return (
     <div
-      style={{
-        boxShadow: selected ? '0 0 0 2px rgba(59,130,246,.5)' : undefined,
-      }}
       className={cn(backgroundColors[d.gender as keyof typeof backgroundColors],
-        "p-2 rounded-md max-w-[200px]",
+        `p-2 rounded-md w-[${personNodeWidth}px] h-[${personNodeHeight}px] overflow-hidden`,
         d?.dimmed && "opacity-50 grayscale-30",
-        selected && "border-1 border-blue-500"
-      )}
+        selected && "border-1 border-blue-500",
+        "flex flex-col items-center justify-center"
+      )
+      }
     >
-      <div className="font-medium text-sm text-gray-800 dark:text-white/85">{d?.label}</div>
-      {d?.sublabel ? (
-        <div className="text-[11px] text-muted-foreground dark:text-white/60">{d.sublabel}</div>
-      ) : null}
+      <div className="font-medium text-[0.5rem] text-gray-800 dark:text-white/85 text-center">{d?.label}</div>
 
       {/* Handles for parent/child vertical edges */}
       <Handle type="source" position={Position.Bottom} id="bottom" className={cn(handlesInvisible && 'opacity-0')} />
