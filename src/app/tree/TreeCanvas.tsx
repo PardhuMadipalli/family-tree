@@ -1,19 +1,20 @@
 "use client";
 
+import '@xyflow/react/dist/style.css';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { edgeTypes } from '@/lib/edgeTypes';
 import { layoutWithElk } from '@/lib/elkLayout';
+import { nodeTypes } from '@/lib/nodeTypes';
 import { useRelationsStore } from '@/lib/relationsStore';
 import { usePeopleStore } from '@/lib/store';
-import { applyLayout, buildDescendantsFlow, buildGraphStructure } from '@/lib/treeLayout';
+import { buildGraphStructure } from '@/lib/treeLayout';
 import { useThemeStore } from '@/store/themes-store';
 import { applyEdgeChanges, applyNodeChanges, Background, Controls, EdgeChange, NodeChange, ReactFlow, ReactFlowInstance, type Edge, type Node } from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
 import { toPng } from 'html-to-image';
 import jsPDF from 'jspdf';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import PersonNode from './PersonNode';
-import UnionNode from './UnionNode';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 
 export default function TreeCanvas() {
   const { people, isHydrated: peopleHydrated, hydrate: hydratePeople } = usePeopleStore();
@@ -187,7 +188,8 @@ export default function TreeCanvas() {
           nodesConnectable={false}
           elementsSelectable={true}
           edgesFocusable={true}
-          nodeTypes={{ personNode: PersonNode, unionNode: UnionNode }}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           colorMode={theme === "dark" ? "dark" : "light"}
         >
           <Background />
