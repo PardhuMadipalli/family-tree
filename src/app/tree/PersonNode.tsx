@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 const handlesInvisible = true;
 
 export const personNodeHeight: number = 30;
-export const personNodeWidth: number = 100;
+export const personNodeWidth: number = 150;
 
 type PersonNodeData = {
   label: string;
@@ -36,7 +36,7 @@ function PersonNode({ data, selected }: NodeProps) {
       )
       }
     >
-      <div className="font-medium text-[0.5rem] text-gray-800 dark:text-white/85 text-center">{d?.label}</div>
+      <div className="font-medium text-xs text-gray-800 dark:text-white/85 text-center">{d?.label}</div>
 
       {/* Handles for parent/child vertical edges */}
       <Handle type="source" position={Position.Bottom} id="bottom" className={cn(handlesInvisible && 'opacity-0')} />

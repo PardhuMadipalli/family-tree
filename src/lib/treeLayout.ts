@@ -161,7 +161,9 @@ export function buildGraphStructure(
       width: personNodeWidth,
       height: personNodeHeight,
       data: {
-        label: `${person.givenName}${person.familyName ? ' ' + person.familyName : ''}`,
+        label: person.givenName,
+        fullName: `${person.givenName}${person.familyName ? ' ' + person.familyName : ''}`,
+        familyName: person.familyName,
         sublabel: person.birthDate ? `b. ${person.birthDate}` : undefined,
         background: person.gender === 'female' ? '#fce7f3' : person.gender === 'male' ? '#dbeafe' : '#e5e7eb',
         gender: person.gender,

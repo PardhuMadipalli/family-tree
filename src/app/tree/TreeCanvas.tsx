@@ -2,16 +2,17 @@
 
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { edgeTypes } from '@/lib/edgeTypes';
 import { layoutWithElk } from '@/lib/elkLayout';
 import { useRelationsStore } from '@/lib/relationsStore';
 import { usePeopleStore } from '@/lib/store';
-import { applyLayout, buildDescendantsFlow, buildGraphStructure } from '@/lib/treeLayout';
+import { buildGraphStructure } from '@/lib/treeLayout';
 import { useThemeStore } from '@/store/themes-store';
 import { applyEdgeChanges, applyNodeChanges, Background, Controls, EdgeChange, NodeChange, ReactFlow, ReactFlowInstance, type Edge, type Node } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { toPng } from 'html-to-image';
 import jsPDF from 'jspdf';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import PersonNode from './PersonNode';
 import UnionNode from './UnionNode';
 
@@ -76,6 +77,7 @@ export default function TreeCanvas() {
 
   const onInit = useCallback((reactFlowInstance: ReactFlowInstance) => {
     reactFlowInstance.fitView();
+    console.log(`Rendered ${reactFlowInstance.getEdges().length} edges`);
   }, []);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -188,6 +190,7 @@ export default function TreeCanvas() {
           elementsSelectable={true}
           edgesFocusable={true}
           nodeTypes={{ personNode: PersonNode, unionNode: UnionNode }}
+          edgeTypes={edgeTypes}
           colorMode={theme === "dark" ? "dark" : "light"}
         >
           <Background />

@@ -4,9 +4,7 @@ import { NodeType } from './nodeTypes';
 
 const PORT_SEPARATOR = '#';
 
-const elk = new ELK({
-  workerUrl: '/scripts/elk-worker.js'
-});
+const elk = new ELK();
 
 
 const commonLayoutOptions: LayoutOptions = {
@@ -199,8 +197,11 @@ function extractLayoutedNodes(rootNode: ElkNode, originalNodes: Node[]): Node[] 
       if (size) {
         // For React Flow v12: set width and height directly for fixed dimensions
         // This will make React Flow use these as inline styles
-        node.width = size.width;
-        node.height = size.height;
+        // node.width = size.width;
+        // node.height = size.height;
+        // node.initialHeight = size.height;
+        // node.initialWidth = size.width;
+        // node.measured = { ...node.measured, width: size.width, height: size.height };
       }
     });
 
