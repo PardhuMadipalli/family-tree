@@ -29,14 +29,17 @@ function PersonNode({ data, selected }: NodeProps) {
   return (
     <div
       className={cn(backgroundColors[d.gender as keyof typeof backgroundColors],
-        `p-2 rounded-md w-[${personNodeWidth}px] h-[${personNodeHeight}px] overflow-hidden`,
+        `p-2 rounded-md overflow-hidden`,
         d?.dimmed && "opacity-50 grayscale-30",
         selected && "border-1 border-blue-500",
         "flex flex-col items-center justify-center"
-      )
-      }
+      )}
+      style={{
+        width: personNodeWidth,
+        height: personNodeHeight,
+      }}
     >
-      <div className="font-medium text-xs text-gray-800 dark:text-white/85 text-center">{d?.label}</div>
+      <div className="font-medium text-[0.6rem] text-gray-800 dark:text-white/85 text-center">{d?.label}</div>
 
       {/* Handles for parent/child vertical edges */}
       <Handle type="source" position={Position.Bottom} id="bottom" className={cn(handlesInvisible && 'opacity-0')} />

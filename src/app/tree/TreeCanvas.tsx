@@ -1,6 +1,5 @@
 "use client";
 
-import '@xyflow/react/dist/style.css';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { edgeTypes } from '@/lib/edgeTypes';
@@ -13,7 +12,8 @@ import { useThemeStore } from '@/store/themes-store';
 import { applyEdgeChanges, applyNodeChanges, Background, Controls, EdgeChange, NodeChange, ReactFlow, ReactFlowInstance, type Edge, type Node } from '@xyflow/react';
 import { toPng } from 'html-to-image';
 import jsPDF from 'jspdf';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import "@xyflow/react/dist/style.css";
 
 
 export default function TreeCanvas() {
