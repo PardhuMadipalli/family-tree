@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { edgeTypes } from '@/lib/edgeTypes';
 import { layoutWithElk } from '@/lib/elkLayout';
 import { nodeTypes } from '@/lib/nodeTypes';
@@ -28,45 +27,22 @@ export default function TreeCanvas() {
     if (!relHydrated) void hydrateRelations();
   }, [relHydrated, hydrateRelations]);
 
-  const [rootId, setRootId] = useState<string>('');
-  const ROOT_STORAGE_KEY = 'family-tree:selectedRootId';
-
-  // Load stored root or fallback to first person when people are ready
-  useEffect(() => {
-    console.log('Loading root');
-    if (!peopleHydrated) return;
-    if (people.length === 0) return;
-    const stored = typeof window !== 'undefined' ? localStorage.getItem(ROOT_STORAGE_KEY) : null;
-    const validIds = new Set(people.map((p) => p.id));
-    const next = stored && validIds.has(stored) ? stored : people[0].id;
-    if (next !== rootId) setRootId(next);
-  }, [peopleHydrated, people]);
-
-  // Persist root on change
-  useEffect(() => {
-    console.log('Persisting root');
-    if (!rootId) return;
-    try {
-      localStorage.setItem(ROOT_STORAGE_KEY, rootId);
-    } catch { }
-  }, [rootId]);
-
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
   useEffect(() => {
     console.log('Layouting');
     const layout = async () => {
-      const { nodes: graphNodes, edges: graphEdges } = buildGraphStructure(rootId, people, parentChildLinks, unions);
+      const { nodes: graphNodes, edges: graphEdges } = buildGraphStructure(people, parentChildLinks, unions);
       const { nodes, edges } = await layoutWithElk(graphNodes, graphEdges);
       console.log('flow:', nodes.length, edges.length);
       setNodes(nodes);
       setEdges(edges);
     };
-    if (rootId && people.length > 0 && (parentChildLinks.length > 0 || unions.length > 0)) {
+    if (people.length > 0 && (parentChildLinks.length > 0 || unions.length > 0)) {
       layout();
     }
-  }, [rootId, people, parentChildLinks, unions]);
+  }, [people, parentChildLinks, unions]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => applyNodeChanges(changes, nds));
@@ -143,33 +119,17 @@ export default function TreeCanvas() {
   return (
     <div className="space-y-3 h-full">
       <div className="flex items-center gap-2">
-        <label className="text-sm">Root (required):</label>
-        <Select
-          value={rootId}
-          onValueChange={(value) => setRootId(value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select a person" />
-          </SelectTrigger>
-          <SelectContent>
-            {people.map((p) => (
-              <SelectItem key={p.id} value={p.id}>
-                {p.givenName} {p.familyName ?? ''}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
         <div className="ml-auto flex items-center gap-2">
           <Button
             onClick={exportPNG}
-            disabled={exporting || !rootId}
+            disabled={exporting || people.length === 0}
             variant="outline"
           >
             Export PNG
           </Button>
           <Button
             onClick={exportPDF}
-            disabled={exporting || !rootId}
+            disabled={exporting || people.length === 0}
             variant="outline"
           >
             Export PDF

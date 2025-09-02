@@ -81,13 +81,12 @@ function computePartnerComponents(people: PersonV1[], partnerAdj: Map<string, Se
 }
 
 export function buildGraphStructure(
-  rootId: string,
   people: PersonV1[],
   parentChildLinks: ParentChildV1[],
   unions: UnionV1[],
 ): GraphStructure {
   const personById: PersonById = Object.fromEntries(people.map((p) => [p.id, p]));
-  if (!people.length || !rootId || !personById[rootId]) {
+  if (!people.length) {
     return { nodes: [], edges: [], personLevels: new Map(), unionToChildren: new Map() };
   }
 
@@ -110,43 +109,63 @@ export function buildGraphStructure(
     }
   }
 
-  // 3) From root component, assign integer levels to components:
-  //    - child comps: level + 1
-  //    - parent comps: level - 1
-  const rootComp = compOf.get(rootId)!;
+  // 3) Find all connected components and assign levels using topological sort
   const compLevel = new Map<string, number>();
+  const visited = new Set<string>();
+  const inDegree = new Map<string, number>();
+
+  // Calculate in-degrees for topological sort
+  for (const [compId] of Object.entries(components)) {
+    inDegree.set(compId, (compIn.get(compId)?.size ?? 0));
+  }
+
+  // Find components with no incoming edges (potential roots)
   const queue: string[] = [];
-  compLevel.set(rootComp, 0);
-  queue.push(rootComp);
-  while (queue.length) {
-    const cur = queue.shift()!;
-    const curLevel = compLevel.get(cur)!;
-    for (const child of Array.from(compOut.get(cur) ?? [])) {
-      if (!compLevel.has(child)) {
-        compLevel.set(child, curLevel + 1);
-        queue.push(child);
-      }
+  for (const [compId, degree] of inDegree.entries()) {
+    if (degree === 0) {
+      queue.push(compId);
+      compLevel.set(compId, 0);
     }
-    for (const parent of Array.from(compIn.get(cur) ?? [])) {
-      if (!compLevel.has(parent)) {
-        compLevel.set(parent, curLevel - 1);
-        queue.push(parent);
+  }
+
+  // If no root components found, start from any component
+  if (queue.length === 0) {
+    const firstComp = Object.keys(components)[0];
+    if (firstComp) {
+      queue.push(firstComp);
+      compLevel.set(firstComp, 0);
+    }
+  }
+
+  // Topological sort to assign levels
+  while (queue.length > 0) {
+    const currentComp = queue.shift()!;
+    visited.add(currentComp);
+
+    for (const childComp of Array.from(compOut.get(currentComp) ?? [])) {
+      inDegree.set(childComp, inDegree.get(childComp)! - 1);
+      if (inDegree.get(childComp) === 0) {
+        queue.push(childComp);
+        compLevel.set(childComp, compLevel.get(currentComp)! + 1);
       }
     }
   }
 
-  // 4) Keep only components reachable from root via parent/child relationships
-  const reachableComps = new Set<string>(compLevel.keys());
+  // Handle any remaining components (cycles or disconnected)
+  for (const [compId] of Object.entries(components)) {
+    if (!visited.has(compId)) {
+      compLevel.set(compId, 0);
+    }
+  }
 
-  // 5) Assign levels to each person by their component
+  // 4) Assign levels to each person by their component
   const personLevels = new Map<string, number>();
   for (const [compId, members] of Object.entries(components)) {
-    if (!reachableComps.has(compId)) continue;
-    const lvl = compLevel.get(compId)!;
+    const lvl = compLevel.get(compId) ?? 0;
     for (const id of members) personLevels.set(id, lvl);
   }
 
-  // 6) Create graph structure
+  // 5) Create graph structure
   const nodes: Node[] = [];
   const edges: Edge[] = [];
   const unionToChildren = new Map<string, string[]>();
@@ -428,7 +447,7 @@ export function buildDescendantsFlow(
   parentChildLinks: ParentChildV1[],
   unions: UnionV1[],
 ): { nodes: Node[]; edges: Edge[] } {
-  const graphStructure = buildGraphStructure(rootId, people, parentChildLinks, unions);
+  const graphStructure = buildGraphStructure(people, parentChildLinks, unions);
   return applyLayout(graphStructure, people, unions);
 }
 

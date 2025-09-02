@@ -96,6 +96,7 @@ const getPorts = (node: Node): ElkPort[] => {
   ports.push(
     {
       id: `${node.id}${PORT_SEPARATOR}top`,
+      //@ts-expect-error Properties fields is not in the type
       properties: { side: 'NORTH' }
     }, {
     id: `${node.id}${PORT_SEPARATOR}bottom`,

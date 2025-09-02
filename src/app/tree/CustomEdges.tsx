@@ -20,9 +20,7 @@ const CustomEdge = ({
     sourceX: sourceX,
     sourceY: sourceY,
     targetX: targetX,
-    targetY: targetY,
-    sourcePosition: sourcePosition,
-    targetPosition: targetPosition,
+    targetY: targetY
   });
 
   return <BaseEdge className={cn("!stroke-gray-400 !dark:stroke-gray-500")}
