@@ -11,6 +11,7 @@ import { usePeopleStore } from "@/lib/store";
 import { useEffect, useMemo, useState } from "react";
 import { columns, type PeopleRow } from "./columns";
 import { MultiSelect } from "@/components/multi-select";
+import { EnhancedMultiSelect } from "@/components/EnhancedMultiSelect";
 
 type Gender = "male" | "female" | "other" | "unknown";
 
@@ -148,7 +149,7 @@ export default function PeoplePage() {
         <div className="grid md:grid-cols-3 grid-cols-1 gap-4">
           <div className="flex flex-col gap-2">
             <CustomLabel label="Parents" htmlFor="parents" />
-            <MultiSelect
+            <EnhancedMultiSelect
               id="parents"
               options={peopleOptions}
               onValueChange={setSelectedParents}
@@ -156,23 +157,28 @@ export default function PeoplePage() {
               className="dark:bg-input/30"
               maxCount={2}
               searchable={true}
+              hideSelectAll={true}
+              addPersonButtonText="Add Parent"
             />
           </div>
           <div className="flex flex-col gap-2">
             <CustomLabel label="Spouses" htmlFor="spouses" />
-            <MultiSelect
+            <EnhancedMultiSelect
               id="spouses"
               options={peopleOptions}
               onValueChange={setSelectedSpouses}
               placeholder="Select spouses"
               className="dark:bg-input/30"
-              maxCount={3}
+              maxCount={10}
               searchable={true}
+              hideSelectAll={true}
+              closeOnSelect={true}
+              addPersonButtonText="Add Spouse"
             />
           </div>
           <div className="flex flex-col gap-2">
             <CustomLabel label="Children" htmlFor="children" />
-            <MultiSelect
+            <EnhancedMultiSelect
               id="children"
               options={peopleOptions}
               onValueChange={setSelectedChildren}
@@ -180,6 +186,8 @@ export default function PeoplePage() {
               className="dark:bg-input/30"
               maxCount={3}
               searchable={true}
+              hideSelectAll={true}
+              addPersonButtonText="Add Child"
             />
           </div>
         </div>

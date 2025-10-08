@@ -1,5 +1,8 @@
 // https://github.com/sersavan/shadcn-multi-select-component
 
+// Special behavior: Options with value "__add_person__" will not show a checkbox
+// This is used for "Add Person" action buttons that trigger dialogs instead of selection
+
 import { cva, type VariantProps } from "class-variance-authority";
 import {
   CheckIcon,
@@ -1095,16 +1098,19 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                               option.disabled && "opacity-50 cursor-not-allowed"
                             )}
                             disabled={option.disabled}>
-                            <div
-                              className={cn(
-                                "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                                isSelected
-                                  ? "bg-primary text-primary-foreground"
-                                  : "opacity-50 [&_svg]:invisible"
-                              )}
-                              aria-hidden="true">
-                              <CheckIcon className="h-4 w-4" />
-                            </div>
+                            {/* Hide checkbox for special "__add_person__" option */}
+                            {option.value !== "__add_person__" && (
+                              <div
+                                className={cn(
+                                  "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                                  isSelected
+                                    ? "bg-primary text-primary-foreground"
+                                    : "opacity-50 [&_svg]:invisible"
+                                )}
+                                aria-hidden="true">
+                                <CheckIcon className="h-4 w-4" />
+                              </div>
+                            )}
                             {option.icon && (
                               <option.icon
                                 className="mr-2 h-4 w-4 text-muted-foreground"
@@ -1135,16 +1141,19 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
                             option.disabled && "opacity-50 cursor-not-allowed"
                           )}
                           disabled={option.disabled}>
-                          <div
-                            className={cn(
-                              "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                              isSelected
-                                ? "bg-primary text-primary-foreground"
-                                : "opacity-50 [&_svg]:invisible"
-                            )}
-                            aria-hidden="true">
-                            <CheckIcon className="h-4 w-4" />
-                          </div>
+                          {/* Hide checkbox for special "__add_person__" option */}
+                          {option.value !== "__add_person__" && (
+                            <div
+                              className={cn(
+                                "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                                isSelected
+                                  ? "bg-primary text-primary-foreground"
+                                  : "opacity-50 [&_svg]:invisible"
+                              )}
+                              aria-hidden="true">
+                              <CheckIcon className="h-4 w-4" />
+                            </div>
+                          )}
                           {option.icon && (
                             <option.icon
                               className="mr-2 h-4 w-4 text-muted-foreground"
