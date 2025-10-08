@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useRef } from "react";
 import { Plus } from "lucide-react";
-import { MultiSelect, type MultiSelectProps, type MultiSelectOption } from "@/components/multi-select";
+import { MultiSelect, type MultiSelectProps, type MultiSelectOption, type MultiSelectRef } from "@/components/multi-select";
 import { AddPersonDialog } from "@/components/AddPersonDialog";
 
 interface EnhancedMultiSelectProps extends Omit<MultiSelectProps, 'options'> {
@@ -21,7 +21,7 @@ export function EnhancedMultiSelect({
   ...multiSelectProps
 }: EnhancedMultiSelectProps) {
   const [isAddPersonDialogOpen, setIsAddPersonDialogOpen] = useState(false);
-  const multiSelectRef = useRef<any>(null);
+  const multiSelectRef = useRef<MultiSelectRef>(null);
 
   const handlePersonAdded = useCallback((personId: string) => {
     // Get current values and add the new person
