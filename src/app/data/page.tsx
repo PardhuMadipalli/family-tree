@@ -1,16 +1,29 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { exportData, importData, isSchemaEnvelopeV1, type ImportStrategy } from '@/lib/io';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DownloadIcon, Merge, RotateCcw } from 'lucide-react';
+import { DownloadIcon, Merge, RotateCcw, Users, GitBranch, TreePalm } from 'lucide-react';
+import { usePeopleStore } from '@/lib/store';
+import { useRelationsStore } from '@/lib/relationsStore';
 
 export default function DataPage() {
   const [busy, setBusy] = useState(false);
   const [strategy, setStrategy] = useState<ImportStrategy>('replace');
   const [message, setMessage] = useState<string>('');
+
+  const { people, isHydrated, hydrate } = usePeopleStore();
+  const { unions, parentChildLinks, isHydrated: relHydrated, hydrate: hydrateRelations } = useRelationsStore();
+
+  useEffect(() => {
+    if (!isHydrated) void hydrate();
+  }, [isHydrated, hydrate]);
+
+  useEffect(() => {
+    if (!relHydrated) void hydrateRelations();
+  }, [relHydrated, hydrateRelations]);
 
   async function handleExport() {
     setBusy(true);
@@ -52,12 +65,21 @@ export default function DataPage() {
     }
   }
 
+  const hasData = isHydrated && relHydrated;
+
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">Data</h2>
 
-      <section className="space-y-2">
+      <section className="space-y-3">
         <h3 className="font-medium">Export</h3>
+        {hasData && people.length > 0 && (
+          <div className="flex gap-3 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1"><Users className="size-3" /> {people.length} people</span>
+            <span className="inline-flex items-center gap-1"><GitBranch className="size-3" /> {unions.length} unions</span>
+            <span className="inline-flex items-center gap-1"><TreePalm className="size-3" /> {parentChildLinks.length} links</span>
+          </div>
+        )}
         <Button
           onClick={handleExport}
           disabled={busy}
@@ -67,7 +89,7 @@ export default function DataPage() {
         </Button>
       </section>
 
-      <section className="space-y-2">
+      <section className="space-y-3">
         <h3 className="font-medium">Import</h3>
         <div className="flex items-center gap-3">
           {/* <Select
@@ -112,6 +134,11 @@ export default function DataPage() {
             <Input type="file" accept="application/json" onChange={handleImport} className="hidden" />
           </label>
         </div>
+        <p className="text-xs text-muted-foreground max-w-md">
+          {strategy === 'replace'
+            ? 'Replace clears all existing data before importing.'
+            : 'Merge adds new records and updates existing ones by ID, keeping data not in the file.'}
+        </p>
         {message ? <p className="text-sm text-black/70 dark:text-white/70">{message}</p> : null}
       </section>
     </div>

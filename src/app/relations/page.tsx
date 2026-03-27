@@ -75,7 +75,12 @@ export default function RelationsPage() {
       <h2 className="text-xl font-semibold">Relationships</h2>
 
       <section className="space-y-3">
-        <h3 className="font-medium">Create union (partners)</h3>
+        <div className="flex items-baseline gap-2">
+          <h3 className="font-medium">Create union (partners)</h3>
+          {unions.length > 0 && (
+            <span className="text-xs text-muted-foreground">{unions.length} union{unions.length !== 1 ? 's' : ''}</span>
+          )}
+        </div>
         <div className="grid md:grid-cols-3 gap-3 items-end">
           <SelectPerson value={partnerA} onChange={setPartnerA} label="Partner A" people={people} />
           <SelectPerson value={partnerB} onChange={setPartnerB} label="Partner B" people={people} />
@@ -91,20 +96,25 @@ export default function RelationsPage() {
             Create union
           </Button>
         </div>
-        <ul className="text-sm space-y-1">
+        <div className="space-y-1 max-w-2xl">
           {unions.map((u) => (
-            <li key={u.id} className="flex items-center justify-between gap-2 hover:bg-muted/50 rounded-md py-1">
+            <div key={u.id} className="flex items-center justify-between gap-2 rounded-md border border-black/5 dark:border-white/5 px-3 py-2 text-sm hover:bg-muted/30 transition">
               <span>
                 {u.partnerIds.map((id) => people.find((p) => p.id === id)?.givenName || 'Unknown').join(' + ')}
               </span>
               <DeleteUnionDialog union={u} people={people} onDelete={deleteUnion} />
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       </section>
 
       <section className="space-y-3">
-        <h3 className="font-medium">Create parent → child link</h3>
+        <div className="flex items-baseline gap-2">
+          <h3 className="font-medium">Create parent → child link</h3>
+          {parentChildLinks.length > 0 && (
+            <span className="text-xs text-muted-foreground">{parentChildLinks.length} link{parentChildLinks.length !== 1 ? 's' : ''}</span>
+          )}
+        </div>
         <div className="grid md:grid-cols-4 gap-3 items-end">
           <SelectPerson value={parent1} onChange={setParent1} label="Parent 1" people={people} />
           <SelectPerson value={parent2} onChange={setParent2} label="Parent 2 (optional)" people={people} />
@@ -123,18 +133,18 @@ export default function RelationsPage() {
             Link parents → child
           </Button>
         </div>
-        <ul className="text-sm space-y-1">
+        <div className="space-y-1 max-w-2xl">
           {parentChildLinks.map((l) => (
-            <li key={l.id} className="flex items-center justify-between gap-2 hover:bg-muted/50 rounded-md py-1">
+            <div key={l.id} className="flex items-center justify-between gap-2 rounded-md border border-black/5 dark:border-white/5 px-3 py-2 text-sm hover:bg-muted/30 transition">
               <span>
                 {(l.parentIds.map((id) => people.find((p) => p.id === id)?.givenName || 'Unknown').join(' & '))}
                 {' → '}
                 {people.find((p) => p.id === l.childId)?.givenName || 'Unknown'}
               </span>
               <DeleteParentChildLinkDialog link={l} people={people} onDelete={deleteParentChildLink} />
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       </section>
     </div>
   );

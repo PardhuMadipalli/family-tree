@@ -31,18 +31,16 @@ export default function TreeCanvas() {
   const [edges, setEdges] = useState<Edge[]>([]);
 
   useEffect(() => {
-    console.log('Layouting');
+    if (!peopleHydrated || !relHydrated) return;
+    if (people.length === 0) return;
     const layout = async () => {
       const { nodes: graphNodes, edges: graphEdges } = buildGraphStructure(people, parentChildLinks, unions);
       const { nodes, edges } = await layoutWithElk(graphNodes, graphEdges);
-      console.log('flow:', nodes.length, edges.length);
       setNodes(nodes);
       setEdges(edges);
     };
-    if (people.length > 0 && (parentChildLinks.length > 0 || unions.length > 0)) {
-      layout();
-    }
-  }, [people, parentChildLinks, unions]);
+    layout();
+  }, [people, parentChildLinks, unions, peopleHydrated, relHydrated]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => applyNodeChanges(changes, nds));
@@ -117,9 +115,10 @@ export default function TreeCanvas() {
   }
 
   return (
-    <div className="space-y-3 h-full">
-      <div className="flex items-center gap-2">
-        <div className="ml-auto flex items-center gap-2">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Tree</h2>
+        <div className="flex items-center gap-2">
           <Button
             onClick={exportPNG}
             disabled={exporting || people.length === 0}
@@ -137,6 +136,11 @@ export default function TreeCanvas() {
         </div>
       </div>
       <div ref={containerRef} className="rounded-md overflow-hidden border border-black/10 dark:border-white/10 h-[600px]">
+        {peopleHydrated && relHydrated && people.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-sm text-black/50 dark:text-white/40">
+            Add people and relationships to see your tree here.
+          </div>
+        ) : (
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -155,6 +159,7 @@ export default function TreeCanvas() {
           <Background />
           <Controls position="bottom-right" showInteractive={false} />
         </ReactFlow>
+        )}
       </div>
     </div>
   );

@@ -1020,6 +1020,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
             <Command>
               {searchable && (
                 <CommandInput
+                  id={`${multiSelectId}-search`}
                   placeholder="Search options..."
                   onKeyDown={handleInputKeyDown}
                   value={searchValue}

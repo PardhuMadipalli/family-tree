@@ -47,6 +47,7 @@ export default function RootLayout({
     <html lang="en" className={theme === "dark" ? "dark" : ""}>
       <head>
         <title>Family Tree</title>
+        <meta name="description" content="Build and visualize your family tree locally in your browser. Add people, define relationships, and explore your ancestry." />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <header className="border-b border-black/10 dark:border-white/10 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -62,6 +63,7 @@ export default function RootLayout({
                       <Link
                         href="/people"
                         data-active={pathname === "/people"}
+                        className={pathname === "/people" ? "font-medium border-b-2 border-current pb-0.5" : ""}
                       >
                         People
                       </Link>
@@ -72,6 +74,7 @@ export default function RootLayout({
                       <Link
                         href="/tree"
                         data-active={pathname === "/tree"}
+                        className={pathname === "/tree" ? "font-medium border-b-2 border-current pb-0.5" : ""}
                       >
                         Tree
                       </Link>
@@ -82,6 +85,7 @@ export default function RootLayout({
                       <Link
                         href="/relations"
                         data-active={pathname === "/relations"}
+                        className={pathname === "/relations" ? "font-medium border-b-2 border-current pb-0.5" : ""}
                       >
                         Relationships
                       </Link>
@@ -92,6 +96,7 @@ export default function RootLayout({
                       <Link
                         href="/data"
                         data-active={pathname === "/data"}
+                        className={pathname === "/data" ? "font-medium border-b-2 border-current pb-0.5" : ""}
                       >
                         Data
                       </Link>
@@ -114,6 +119,11 @@ export default function RootLayout({
           </div>
         </header>
         <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
+        <footer className="border-t border-black/5 dark:border-white/5 mt-12">
+          <div className="mx-auto max-w-6xl px-4 py-4 text-xs text-black/40 dark:text-white/30">
+            Family Tree · Data stored locally in your browser
+          </div>
+        </footer>
       </body>
     </html>
   );

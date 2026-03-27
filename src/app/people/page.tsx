@@ -131,6 +131,7 @@ export default function PeoplePage() {
             <Select
               value={gender}
               onValueChange={(value) => setGender(value as Gender)}
+              name="gender"
             >
               <SelectTrigger className="w-full" id="gender">
                 <SelectValue placeholder="Select gender" />
@@ -195,6 +196,7 @@ export default function PeoplePage() {
         <div className="flex flex-col gap-1">
           <CustomLabel label="Notes" htmlFor="notes" />
           <Textarea
+            id="notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Optional notes"
@@ -212,6 +214,8 @@ export default function PeoplePage() {
           </Button>
         </div>
       </form>
+
+      <hr className="border-black/5 dark:border-white/5" />
 
       <section className="space-y-2">
         <h3 className="font-medium">All people</h3>
