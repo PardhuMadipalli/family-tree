@@ -1,31 +1,70 @@
 # Family Tree
 
-## Goal
-I want to make a family tree app, preferably using a single framework like next.js. This is only for hobby project and is not related to my startup. 
+A privacy-first, local-only web app for building, visualizing, and sharing family trees. Add people, define relationships, render an automatic tree layout, and keep multiple trees side by side. Everything stays in your browser — no backend, no signup, nothing leaves your device.
 
-Basically I want users to add people, their relations very easily and intuitively. They should be able to export and import the data. They should be able to visualize this is a nice tree and more formats. They should also be able to export in image or pdf formats so that it's shareable on social media. 
+## Try it
 
-## Current Status
-- App shell with navbar and routes (`/people`, `/tree`) added. Navbar uses shadcn `NavigationMenu`.
-- Theme switcher in navbar using Zustand store and `lucide-react` icons (Sun/Moon). Preference is persisted in `localStorage` and respects system preference on first load.
-- Domain model (v1) types defined in `src/lib/domain.ts`.
-- Home page links to People and Tree.
-- Local DB via Dexie configured in `src/lib/db.ts` (v1 schema: `people`, `unions`, `parentChildLinks`).
-- Zustand store for people in `src/lib/store.ts` with optimistic CRUD.
-- People page (`/people`) provides add/edit/delete and list UI.
-- Relationships page (`/relations`) to create unions and parent→child links.
-- Relations state in `src/lib/relationsStore.ts` with optimistic CRUD.
-- Tree visualization (Step 7): `/tree` renders a React Flow graph with automatic layout using ELK. The layout automatically determines hierarchical levels based on parent-child relationships and partner connections. Union edges are horizontal, parent-child edges vertical. All connected family members are displayed in a single view.
-- Import/Export (Step 8): `/data` page supports exporting JSON v1 and importing with `replace` or `merge` strategies.
+### Use the hosted version (Vercel)
 
-## Multiple family trees
+Open the live app and start adding people right away:
 
-The app now supports keeping several independent family trees side by side in the same browser. Each tree has its own people, unions, and parent-child links, and switching between trees swaps out the entire view.
+**[https://family-tree-mpardhu.vercel.app](https://family-tree-mpardhu.vercel.app)** *(replace with your deployed URL)*
 
-- **Tree switcher** — A switcher in the top bar shows the active tree's name and lets you pick a different tree from a dropdown. The dropdown lists every tree you've created, with the active one highlighted.
-- **Create / Rename / Delete** — The same dropdown exposes actions to create a new (empty) tree, rename the active tree, and delete a tree. Deleting a tree removes only that tree's records; other trees are untouched. The app keeps at least one tree around at all times.
-- **Export and Import on `/data`** — Export downloads a JSON backup of the active tree only. Import-as-new-tree reads a backup file and loads it into a brand-new tree without touching any existing tree, then switches to the newly created tree.
+Your data is saved in your browser's IndexedDB. Different browsers and devices each have their own independent set of trees — use the export / import features below to move data between them.
 
-All data lives in your browser's IndexedDB. There is no backend and nothing is uploaded anywhere — clearing site data or switching browsers will leave the trees behind.
+### Deploy your own copy to Vercel
 
-See the step-by-step plan in `plan.md`.
+The app is a static-style Next.js project with no backend, so any Vercel free-tier account can host it.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FPardhuMadipalli%2Ffamily-tree)
+
+Or do it manually:
+
+1. Fork [PardhuMadipalli/family-tree](https://github.com/PardhuMadipalli/family-tree) on GitHub.
+2. Sign in to [vercel.com](https://vercel.com) and click **Add New… → Project**.
+3. Import your fork. Vercel auto-detects Next.js — accept the defaults and click **Deploy**.
+4. Within a minute you'll have your own URL like `https://family-tree-<your-name>.vercel.app`.
+
+### Run it locally
+
+You'll need [Node.js 20+](https://nodejs.org) and a recent npm.
+
+```bash
+git clone https://github.com/PardhuMadipalli/family-tree.git
+cd family-tree
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). Edits to source files reload automatically.
+
+To build a production bundle:
+
+```bash
+npm run build
+npm start
+```
+
+## Features
+
+- **Add people** with names, dates, gender, and freeform notes.
+- **Define relationships** — partnerships (unions) and parent → child links.
+- **Automatic tree visualization** with an [ELK](https://eclipse.dev/elk/)-driven layered layout. Union edges run horizontally, parent-child edges vertically. The whole connected family fits on one canvas.
+- **Multiple family trees** — switch between independent trees with a top-bar selector. Create / rename / delete trees from the same dropdown.
+- **Export / import** as a versioned JSON envelope. Import-as-new-tree loads a backup as a brand-new tree without touching anything you already have.
+- **Light / dark theme** — respects your system preference and remembers your choice.
+- **Local-first** — every byte lives in your browser's IndexedDB. There is no server, no analytics, no telemetry.
+
+## Privacy
+
+There is no backend. The app is shipped as static assets; everything runs client-side. Your tree data lives in your browser's IndexedDB, your active-tree selection lives in `localStorage`, and the app never makes a network request with your data.
+
+If you clear site data, your trees are gone — use the **Data** page to export a backup first.
+
+## Documentation
+
+- **[Development.md](./Development.md)** — architecture, dependencies, data model, testing, and contributor setup.
+
+## License
+
+This is a personal hobby project. No formal license has been chosen yet; treat the code as "look but do not redistribute" until that changes.
