@@ -32,6 +32,7 @@ export function AddPersonDialog({ onPersonAdded, trigger, open: controlledOpen, 
   const [givenName, setGivenName] = useState("");
   const [familyName, setFamilyName] = useState("");
   const [birthDate, setBirthDate] = useState("");
+  const [deathDate, setDeathDate] = useState("");
   const [gender, setGender] = useState<Gender>("unknown");
   const { addPerson } = usePeopleStore();
 
@@ -46,6 +47,7 @@ export function AddPersonDialog({ onPersonAdded, trigger, open: controlledOpen, 
         givenName: givenName.trim(),
         familyName: familyName.trim() || undefined,
         birthDate: birthDate || undefined,
+        deathDate: deathDate || undefined,
         gender,
       });
 
@@ -55,6 +57,7 @@ export function AddPersonDialog({ onPersonAdded, trigger, open: controlledOpen, 
       setGivenName("");
       setFamilyName("");
       setBirthDate("");
+      setDeathDate("");
       setGender("unknown");
       setOpen(false);
     } catch (error) {
@@ -66,6 +69,7 @@ export function AddPersonDialog({ onPersonAdded, trigger, open: controlledOpen, 
     setGivenName("");
     setFamilyName("");
     setBirthDate("");
+    setDeathDate("");
     setGender("unknown");
     setOpen(false);
   };
@@ -120,6 +124,19 @@ export function AddPersonDialog({ onPersonAdded, trigger, open: controlledOpen, 
                 type="date"
                 value={birthDate}
                 onChange={(e) => setBirthDate(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="dialog-deathDate" className="text-right">
+                Death Date
+              </Label>
+              <Input
+                id="dialog-deathDate"
+                type="date"
+                value={deathDate}
+                onChange={(e) => setDeathDate(e.target.value)}
+                min={birthDate || undefined}
                 className="col-span-3"
               />
             </div>

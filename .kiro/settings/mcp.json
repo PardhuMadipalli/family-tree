@@ -15,8 +15,22 @@
         "evaluate_script",
         "take_snapshot",
         "emulate",
-        "click"
+        "click",
+        "list_pages"
       ]
+    },
+    "local-browsermcp": {
+      "args": [
+        "@browsermcp/mcp@0.1.3"
+      ],
+      "autoApprove": [
+        "browser_screenshot",
+        "browser_snapshot",
+        "browser_navigate",
+        "browser_click"
+      ],
+      "command": "npx",
+      "disabled": false
     }
   }
 }

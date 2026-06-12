@@ -8,25 +8,28 @@ import { Textarea } from "@/components/ui/textarea";
 import type { PersonV1 } from "@/lib/domain";
 import { usePeopleStore } from "@/lib/store";
 import { ColumnDef } from "@tanstack/react-table";
-import { Baby, CalendarClock, CircleHelp, Eye, Mars, Pencil, Trash, UsersRound, Venus } from "lucide-react";
+import { Baby, CalendarClock, CircleHelp, Cross, Eye, Mars, Pencil, Trash, UsersRound, Venus } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type Gender = "male" | "female" | "other" | "unknown";
 
-export type PeopleRow = Pick<PersonV1, "id" | "givenName" | "familyName" | "birthDate" | "gender"> & {
+export type PeopleRow = Pick<PersonV1, "id" | "givenName" | "familyName" | "birthDate" | "deathDate" | "gender"> & {
   spouses?: string;
   parents?: string;
   children?: string;
 };
 
-function deriveAge(birthDate?: string) {
+function deriveAge(birthDate?: string, deathDate?: string) {
   if (!birthDate) return undefined;
   const d = new Date(birthDate);
   if (Number.isNaN(d.getTime())) return undefined;
-  const now = new Date();
-  let age = now.getFullYear() - d.getFullYear();
+  // If a deathDate exists, age represents lifespan (age at death).
+  // Otherwise it's the person's current age.
+  const ref = deathDate ? new Date(deathDate) : new Date();
+  if (Number.isNaN(ref.getTime())) return undefined;
+  let age = ref.getFullYear() - d.getFullYear();
   const hasHadBirthdayThisYear =
-    now.getMonth() > d.getMonth() || (now.getMonth() === d.getMonth() && now.getDate() >= d.getDate());
+    ref.getMonth() > d.getMonth() || (ref.getMonth() === d.getMonth() && ref.getDate() >= d.getDate());
   if (!hasHadBirthdayThisYear) age -= 1;
   return age;
 }
@@ -54,7 +57,7 @@ function ViewPersonDialog({ person }: { person: PeopleRow }) {
         <DialogHeader>
           <DialogTitle>{person.givenName} {person.familyName ?? ""}</DialogTitle>
         </DialogHeader>
-        <div className="flex items-center gap-2 text-muted-foreground">
+        <div className="flex items-center gap-2 text-muted-foreground flex-wrap">
           {person.gender === "male" ? (
             <Mars className="size-4 text-[var(--male)]" />
           ) : person.gender === "female" ? (
@@ -66,9 +69,24 @@ function ViewPersonDialog({ person }: { person: PeopleRow }) {
           {person.birthDate ? (
             <span className="inline-flex items-center gap-1 ml-3">
               <CalendarClock className="size-4" />
-              <span>{new Date(person.birthDate).toLocaleDateString()}</span>
+              <span>b. {new Date(person.birthDate).toLocaleDateString()}</span>
             </span>
           ) : null}
+          {person.deathDate ? (
+            <span className="inline-flex items-center gap-1 ml-3">
+              <Cross className="size-4" />
+              <span>d. {new Date(person.deathDate).toLocaleDateString()}</span>
+            </span>
+          ) : null}
+          {(() => {
+            const age = deriveAge(person.birthDate, person.deathDate);
+            if (age === undefined) return null;
+            return (
+              <span className="ml-3 text-xs">
+                {person.deathDate ? `aged ${age}` : `${age} years old`}
+              </span>
+            );
+          })()}
         </div>
         {person.spouses ? (
           <div className="flex items-start gap-2">
@@ -114,6 +132,7 @@ function EditPersonDialog({ person }: { person: PeopleRow }) {
     givenName: person.givenName ?? "",
     familyName: person.familyName ?? "",
     birthDate: person.birthDate ?? "",
+    deathDate: person.deathDate ?? "",
     gender: (person.gender ?? "unknown") as Gender,
     notes: "",
   });
@@ -123,10 +142,11 @@ function EditPersonDialog({ person }: { person: PeopleRow }) {
       givenName: person.givenName ?? "",
       familyName: person.familyName ?? "",
       birthDate: person.birthDate ?? "",
+      deathDate: person.deathDate ?? "",
       gender: (person.gender ?? "unknown") as Gender,
       notes: "",
     });
-  }, [person.id, person.givenName, person.familyName, person.birthDate, person.gender]);
+  }, [person.id, person.givenName, person.familyName, person.birthDate, person.deathDate, person.gender]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -163,21 +183,25 @@ function EditPersonDialog({ person }: { person: PeopleRow }) {
                 className="h-9 w-full rounded-md border border-black/15 dark:border-white/15 px-2 bg-transparent"
               />
             </Field>
-            <Field label="Age (years)">
+            <Field label="Death date">
               <Input
-                type="number"
-                min={0}
-                disabled
-                value={deriveAge(draft.birthDate) ?? ""}
-                onChange={(e) => {
-                  const n = Number(e.target.value);
-                  if (!Number.isFinite(n) || n <= 0) return;
-                  const year = new Date().getFullYear() - Math.floor(n);
-                  setDraft((d) => ({ ...d, birthDate: `${year}-01-01` }));
-                }}
+                type="date"
+                value={draft.deathDate}
+                onChange={(e) => setDraft((d) => ({ ...d, deathDate: e.target.value }))}
+                min={draft.birthDate || undefined}
+                className="h-9 w-full rounded-md border border-black/15 dark:border-white/15 px-2 bg-transparent"
               />
             </Field>
           </div>
+          {(() => {
+            const age = deriveAge(draft.birthDate, draft.deathDate);
+            if (age === undefined) return null;
+            return (
+              <p className="text-xs text-muted-foreground -mt-1">
+                {draft.deathDate ? `Lived ${age} years.` : `${age} years old.`}
+              </p>
+            );
+          })()}
           <Field label="Gender">
             <Select
               value={draft.gender}
@@ -215,6 +239,7 @@ function EditPersonDialog({ person }: { person: PeopleRow }) {
                   givenName: draft.givenName.trim() || person.givenName,
                   familyName: draft.familyName.trim() || undefined,
                   birthDate: draft.birthDate || undefined,
+                  deathDate: draft.deathDate || undefined,
                   gender: draft.gender,
                   notes: draft.notes.trim() || undefined,
                 });
@@ -295,6 +320,18 @@ export const columns: ColumnDef<PeopleRow>[] = [
     header: "Birth date",
     cell: ({ row }) => {
       const v = row.getValue<string>("birthDate");
+      return v ? (
+        <span className="tabular-nums">{new Date(v).toLocaleDateString()}</span>
+      ) : (
+        <span className="text-muted-foreground/60">—</span>
+      );
+    },
+  },
+  {
+    accessorKey: "deathDate",
+    header: "Death date",
+    cell: ({ row }) => {
+      const v = row.getValue<string>("deathDate");
       return v ? (
         <span className="tabular-nums">{new Date(v).toLocaleDateString()}</span>
       ) : (

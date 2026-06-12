@@ -34,6 +34,7 @@ export default function PeoplePage() {
   const [givenName, setGivenName] = useState("");
   const [familyName, setFamilyName] = useState("");
   const [birthDate, setBirthDate] = useState("");
+  const [deathDate, setDeathDate] = useState("");
   const [gender, setGender] = useState<Gender>("unknown");
   const [notes, setNotes] = useState("");
   const [selectedSpouses, setSelectedSpouses] = useState<string[]>([]);
@@ -59,6 +60,7 @@ export default function PeoplePage() {
       givenName: givenName.trim(),
       familyName: familyName.trim() || undefined,
       birthDate: birthDate || undefined,
+      deathDate: deathDate || undefined,
       gender,
       notes: notes.trim() || undefined,
     });
@@ -84,6 +86,7 @@ export default function PeoplePage() {
     setGivenName("");
     setFamilyName("");
     setBirthDate("");
+    setDeathDate("");
     setGender("unknown");
     setNotes("");
     setSelectedSpouses([]);
@@ -105,7 +108,7 @@ export default function PeoplePage() {
           <h3 className="text-sm font-medium">Add a person</h3>
         </div>
         <form onSubmit={onSubmit} className="p-5 space-y-5">
-          <div className="grid md:grid-cols-4 grid-cols-1 gap-3 items-end">
+          <div className="grid md:grid-cols-5 grid-cols-1 gap-3 items-end">
             <div className="flex flex-col gap-1.5">
               <CustomLabel label="Given name" htmlFor="givenName" />
               <Input
@@ -131,6 +134,16 @@ export default function PeoplePage() {
                 type="date"
                 value={birthDate}
                 onChange={(e) => setBirthDate(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <CustomLabel label="Death date" htmlFor="deathDate" />
+              <Input
+                id="deathDate"
+                type="date"
+                value={deathDate}
+                onChange={(e) => setDeathDate(e.target.value)}
+                min={birthDate || undefined}
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -242,6 +255,7 @@ export default function PeoplePage() {
               givenName: p.givenName,
               familyName: p.familyName,
               birthDate: p.birthDate,
+              deathDate: p.deathDate,
               gender: p.gender,
               spouses: deriveSpouses(p.id, unions, people),
               parents: deriveParents(p.id, parentChildLinks, people),
