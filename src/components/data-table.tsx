@@ -23,13 +23,13 @@ export function DataTable<TData, TValue>({ columns, data, renderHover }: DataTab
   });
 
   return (
-    <div className="rounded-md border border-black/10 dark:border-white/10 overflow-hidden">
+    <div className="rounded-xl border border-border/70 bg-card shadow-xs overflow-hidden">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
+            <TableRow key={headerGroup.id} className="hover:bg-transparent border-border/70">
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="font-semibold bg-muted/70">
+                <TableHead key={header.id} className="font-medium text-xs uppercase tracking-wider text-muted-foreground bg-muted/40 h-10">
                   {header.isPlaceholder
                     ? null
                     : flexRender(header.column.columnDef.header, header.getContext())}
@@ -42,9 +42,9 @@ export function DataTable<TData, TValue>({ columns, data, renderHover }: DataTab
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => {
               const tr = (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"} className="border-border/60 hover:bg-muted/40">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-1">
+                    <TableCell key={cell.id} className="py-2.5">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}

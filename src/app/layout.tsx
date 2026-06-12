@@ -87,59 +87,44 @@ export default function RootLayout({
         <title>Family Tree</title>
         <meta name="description" content="Build and visualize your family tree locally in your browser. Add people, define relationships, and explore your ancestry." />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <header className="border-b border-black/10 dark:border-white/10 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
-            <Link href="/" className="text-lg font-semibold hover:opacity-90 flex flex-row gap-2">
-              <TreePalm className="w-6 h-6" /> Family Tree
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
+        <header className="sticky top-0 z-30 border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+          <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-4">
+            <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight hover:opacity-90 transition">
+              <span className="inline-flex items-center justify-center size-8 rounded-md bg-brand/10 text-brand">
+                <TreePalm className="size-4" />
+              </span>
+              <span className="text-base">Family Tree</span>
             </Link>
-            <div className="flex items-center gap-3">
-              <NavigationMenu className="gap-3">
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        href="/people"
-                        data-active={pathname === "/people"}
-                        className={pathname === "/people" ? "font-medium border-b-2 border-current pb-0.5" : ""}
-                      >
-                        People
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        href="/tree"
-                        data-active={pathname === "/tree"}
-                        className={pathname === "/tree" ? "font-medium border-b-2 border-current pb-0.5" : ""}
-                      >
-                        Tree
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        href="/relations"
-                        data-active={pathname === "/relations"}
-                        className={pathname === "/relations" ? "font-medium border-b-2 border-current pb-0.5" : ""}
-                      >
-                        Relationships
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        href="/data"
-                        data-active={pathname === "/data"}
-                        className={pathname === "/data" ? "font-medium border-b-2 border-current pb-0.5" : ""}
-                      >
-                        Data
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <NavigationMenu>
+                <NavigationMenuList className="gap-1">
+                  {[
+                    { href: "/people", label: "People" },
+                    { href: "/tree", label: "Tree" },
+                    { href: "/relations", label: "Relationships" },
+                    { href: "/data", label: "Data" },
+                  ].map((item) => {
+                    const active = pathname === item.href;
+                    return (
+                      <NavigationMenuItem key={item.href}>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            href={item.href}
+                            data-active={active}
+                            className={
+                              "relative inline-flex items-center px-3 py-1.5 rounded-md text-sm transition " +
+                              (active
+                                ? "text-foreground font-medium bg-brand/10"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted")
+                            }
+                          >
+                            {item.label}
+                          </Link>
+                        </NavigationMenuLink>
+                      </NavigationMenuItem>
+                    );
+                  })}
                 </NavigationMenuList>
               </NavigationMenu>
               {/*
@@ -152,22 +137,23 @@ export default function RootLayout({
                 type="button"
                 aria-label="Toggle theme"
                 onClick={toggleTheme}
+                className="inline-flex items-center justify-center size-9 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition"
               >
                 {theme === "dark" ? (
-                  <Sun className="h-4 w-4" />
+                  <Sun className="size-4" />
                 ) : (
-                  <Moon className="h-4 w-4" />
+                  <Moon className="size-4" />
                 )}
               </button>
             </div>
           </div>
         </header>
         <StatusBanner />
-        <main className="mx-auto max-w-6xl px-4 py-6">
+        <main className="mx-auto max-w-6xl w-full px-4 py-8 flex-1">
           {isReady ? children : null}
         </main>
-        <footer className="border-t border-black/5 dark:border-white/5 mt-12">
-          <div className="mx-auto max-w-6xl px-4 py-4 text-xs text-black/40 dark:text-white/30">
+        <footer className="border-t border-border/60 mt-12">
+          <div className="mx-auto max-w-6xl px-4 py-4 text-xs text-muted-foreground">
             Family Tree · Data stored locally in your browser
           </div>
         </footer>

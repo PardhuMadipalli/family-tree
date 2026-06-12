@@ -132,16 +132,22 @@ export default function DataPage() {
   const recordsHydrated = isHydrated && relHydrated;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Data</h2>
-        <p className="text-sm text-muted-foreground">
-          Active tree: <span className="font-medium text-foreground">{activeTreeName}</span>
-        </p>
-      </div>
+    <div className="space-y-8">
+      <header className="flex items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-semibold tracking-tight">Data</h2>
+          <p className="text-sm text-muted-foreground">
+            Export the active tree, or import another JSON file as a new tree.
+          </p>
+        </div>
+        <div className="text-sm text-muted-foreground text-right">
+          <div className="text-xs uppercase tracking-wider">Active tree</div>
+          <div className="font-medium text-foreground">{activeTreeName}</div>
+        </div>
+      </header>
 
       {!hasActiveTree && (
-        <p className="text-sm text-black/70 dark:text-white/70">
+        <p className="text-sm text-muted-foreground">
           Select or create a tree to export or import data.
         </p>
       )}
@@ -153,26 +159,26 @@ export default function DataPage() {
             Download the active tree as a JSON file you can back up or import as a new tree later.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-4">
           {hasActiveTree && recordsHydrated && (
-            <div className="flex gap-3 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1">
-                <Users className="size-3" /> {people.length} people
+            <div className="flex flex-wrap gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-muted px-2.5 py-1 text-xs">
+                <Users className="size-3.5 text-brand" /> {people.length} people
               </span>
-              <span className="inline-flex items-center gap-1">
-                <GitBranch className="size-3" /> {unions.length} unions
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-muted px-2.5 py-1 text-xs">
+                <GitBranch className="size-3.5 text-brand" /> {unions.length} unions
               </span>
-              <span className="inline-flex items-center gap-1">
-                <TreePalm className="size-3" /> {parentChildLinks.length} links
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-muted px-2.5 py-1 text-xs">
+                <TreePalm className="size-3.5 text-brand" /> {parentChildLinks.length} links
               </span>
             </div>
           )}
           <Button onClick={handleExport} disabled={busy || !hasActiveTree}>
-            <DownloadIcon className="w-4 h-4" />
+            <DownloadIcon className="size-4" />
             Download JSON
           </Button>
           {exportError ? (
-            <p className="text-sm text-red-600 dark:text-red-400">{exportError}</p>
+            <p className="text-sm text-destructive">{exportError}</p>
           ) : null}
         </CardContent>
       </Card>
@@ -184,9 +190,9 @@ export default function DataPage() {
             Load a JSON export as a brand-new tree. Existing trees are not modified.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex flex-col gap-2 max-w-md">
-            <label className="text-xs text-black/70 dark:text-white/70" htmlFor="import-tree-name">
+        <CardContent className="space-y-4">
+          <div className="flex flex-col gap-1.5 max-w-md">
+            <label className="text-xs text-muted-foreground" htmlFor="import-tree-name">
               New tree name (optional)
             </label>
             <Input
@@ -199,31 +205,25 @@ export default function DataPage() {
               maxLength={200}
             />
           </div>
-          <div className="flex items-center gap-3">
-            <label className="inline-flex items-center gap-2">
-              <span
-                className={`inline-flex items-center rounded-md px-4 h-9 border border-black/10 dark:border-white/15 ${
-                  busy || !hasActiveTree
-                    ? 'opacity-50 cursor-not-allowed'
-                    : 'hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer'
-                }`}
-              >
-                Choose file
-              </span>
-              <Input
-                type="file"
-                accept="application/json"
-                onChange={handleImport}
-                className="hidden"
-                disabled={busy || !hasActiveTree}
-              />
-            </label>
-          </div>
+          <label className={`group flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border/70 bg-muted/20 px-6 py-8 transition max-w-md ${busy || !hasActiveTree ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-brand/50 hover:bg-brand/5'}`}>
+            <span className="inline-flex items-center justify-center size-10 rounded-full bg-brand/10 text-brand">
+              <DownloadIcon className="size-5 rotate-180" />
+            </span>
+            <span className="text-sm font-medium">Choose a JSON file</span>
+            <span className="text-xs text-muted-foreground">or drag and drop</span>
+            <Input
+              type="file"
+              accept="application/json"
+              onChange={handleImport}
+              className="hidden"
+              disabled={busy || !hasActiveTree}
+            />
+          </label>
           {importMessage ? (
-            <p className="text-sm text-black/70 dark:text-white/70">{importMessage}</p>
+            <p className="text-sm text-brand">{importMessage}</p>
           ) : null}
           {importError ? (
-            <p className="text-sm text-red-600 dark:text-red-400">{importError}</p>
+            <p className="text-sm text-destructive">{importError}</p>
           ) : null}
         </CardContent>
       </Card>

@@ -92,135 +92,148 @@ export default function PeoplePage() {
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold">People</h2>
-      <form onSubmit={onSubmit} className="space-y-4">
-        <div className="grid md:grid-cols-5 grid-cols-1 gap-3 items-end">
-          <div className="flex flex-col gap-1">
-            <CustomLabel label="Given name" htmlFor="givenName" />
-            <Input
-              id="givenName"
-              value={givenName}
-              onChange={(e) => setGivenName(e.target.value)}
-              placeholder="e.g., Ada"
-              className="h-9 rounded-md border border-black/15 dark:border-white/15 px-2 bg-transparent"
+    <div className="space-y-8">
+      <header className="space-y-1">
+        <h2 className="text-2xl font-semibold tracking-tight">People</h2>
+        <p className="text-sm text-muted-foreground">
+          Add and manage everyone in this family tree.
+        </p>
+      </header>
+
+      <section className="rounded-xl border border-border/70 bg-card shadow-xs">
+        <div className="border-b border-border/70 px-5 py-3">
+          <h3 className="text-sm font-medium">Add a person</h3>
+        </div>
+        <form onSubmit={onSubmit} className="p-5 space-y-5">
+          <div className="grid md:grid-cols-4 grid-cols-1 gap-3 items-end">
+            <div className="flex flex-col gap-1.5">
+              <CustomLabel label="Given name" htmlFor="givenName" />
+              <Input
+                id="givenName"
+                value={givenName}
+                onChange={(e) => setGivenName(e.target.value)}
+                placeholder="e.g., Ada"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <CustomLabel label="Family name" htmlFor="familyName" />
+              <Input
+                id="familyName"
+                value={familyName}
+                onChange={(e) => setFamilyName(e.target.value)}
+                placeholder="e.g., Lovelace"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <CustomLabel label="Birth date" htmlFor="birthDate" />
+              <Input
+                id="birthDate"
+                type="date"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <CustomLabel label="Gender" htmlFor="gender" />
+              <Select
+                value={gender}
+                onValueChange={(value) => setGender(value as Gender)}
+                name="gender"
+              >
+                <SelectTrigger className="w-full" id="gender">
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent id="gender-options">
+                  <SelectItem value="unknown">Unknown</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Relationship fields */}
+          <div className="grid md:grid-cols-3 grid-cols-1 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <CustomLabel label="Parents" htmlFor="parents" />
+              <EnhancedMultiSelect
+                id="parents"
+                options={peopleOptions}
+                onValueChange={setSelectedParents}
+                placeholder="Select parents"
+                className="dark:bg-input/30"
+                maxCount={2}
+                searchable={true}
+                hideSelectAll={true}
+                addPersonButtonText="Add Parent"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <CustomLabel label="Spouses" htmlFor="spouses" />
+              <EnhancedMultiSelect
+                id="spouses"
+                options={peopleOptions}
+                onValueChange={setSelectedSpouses}
+                placeholder="Select spouses"
+                className="dark:bg-input/30"
+                maxCount={10}
+                searchable={true}
+                hideSelectAll={true}
+                closeOnSelect={true}
+                addPersonButtonText="Add Spouse"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <CustomLabel label="Children" htmlFor="children" />
+              <EnhancedMultiSelect
+                id="children"
+                options={peopleOptions}
+                onValueChange={setSelectedChildren}
+                placeholder="Select children"
+                className="dark:bg-input/30"
+                maxCount={3}
+                searchable={true}
+                hideSelectAll={true}
+                addPersonButtonText="Add Child"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5 max-w-xl">
+            <CustomLabel label="Notes" htmlFor="notes" />
+            <Textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Optional notes"
+              className="min-h-16 resize-none"
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <CustomLabel label="Family name" htmlFor="familyName" />
-            <Input
-              id="familyName"
-              value={familyName}
-              onChange={(e) => setFamilyName(e.target.value)}
-              placeholder="e.g., Lovelace"
-              className="h-9 rounded-md border border-black/15 dark:border-white/15 px-2 bg-transparent"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <CustomLabel label="Birth date" htmlFor="birthDate" />
-            <Input
-              id="birthDate"
-              type="date"
-              value={birthDate}
-              onChange={(e) => setBirthDate(e.target.value)}
-              className="h-9 rounded-md border border-black/15 dark:border-white/15 px-2 bg-transparent justify-between w-full"
-            />
-          </div>
-          <div className="flex flex-col gap-1">
-            <CustomLabel label="Gender" htmlFor="gender" />
-            <Select
-              value={gender}
-              onValueChange={(value) => setGender(value as Gender)}
-              name="gender"
+
+          <div className="flex justify-start pt-1">
+            <Button
+              type="submit"
+              disabled={!isValid}
+              variant="default"
             >
-              <SelectTrigger className="w-full" id="gender">
-                <SelectValue placeholder="Select gender" />
-              </SelectTrigger>
-              <SelectContent id="gender-options">
-                <SelectItem value="unknown">Unknown</SelectItem>
-                <SelectItem value="female">Female</SelectItem>
-                <SelectItem value="male">Male</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
+              Add person
+            </Button>
           </div>
+        </form>
+      </section>
+
+      <section className="space-y-3">
+        <div className="flex items-baseline justify-between">
+          <h3 className="font-medium">All people</h3>
+          {isHydrated && people.length > 0 && (
+            <span className="text-xs text-muted-foreground">{people.length} total</span>
+          )}
         </div>
-
-        {/* Relationship fields */}
-        <div className="grid md:grid-cols-3 grid-cols-1 gap-4">
-          <div className="flex flex-col gap-2">
-            <CustomLabel label="Parents" htmlFor="parents" />
-            <EnhancedMultiSelect
-              id="parents"
-              options={peopleOptions}
-              onValueChange={setSelectedParents}
-              placeholder="Select parents"
-              className="dark:bg-input/30"
-              maxCount={2}
-              searchable={true}
-              hideSelectAll={true}
-              addPersonButtonText="Add Parent"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <CustomLabel label="Spouses" htmlFor="spouses" />
-            <EnhancedMultiSelect
-              id="spouses"
-              options={peopleOptions}
-              onValueChange={setSelectedSpouses}
-              placeholder="Select spouses"
-              className="dark:bg-input/30"
-              maxCount={10}
-              searchable={true}
-              hideSelectAll={true}
-              closeOnSelect={true}
-              addPersonButtonText="Add Spouse"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <CustomLabel label="Children" htmlFor="children" />
-            <EnhancedMultiSelect
-              id="children"
-              options={peopleOptions}
-              onValueChange={setSelectedChildren}
-              placeholder="Select children"
-              className="dark:bg-input/30"
-              maxCount={3}
-              searchable={true}
-              hideSelectAll={true}
-              addPersonButtonText="Add Child"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <CustomLabel label="Notes" htmlFor="notes" />
-          <Textarea
-            id="notes"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Optional notes"
-            className="min-h-12 resize-none w-lg"
-          />
-        </div>
-
-        <div className="flex justify-start">
-          <Button
-            type="submit"
-            disabled={!isValid}
-            variant="default"
-          >
-            Add person
-          </Button>
-        </div>
-      </form>
-
-      <hr className="border-black/5 dark:border-white/5" />
-
-      <section className="space-y-2">
-        <h3 className="font-medium">All people</h3>
         {isHydrated && people.length === 0 ? (
-          <p className="text-sm text-black/70 dark:text-white/70">No people yet. Add the first person above.</p>
+          <div className="rounded-xl border border-dashed border-border/70 bg-muted/30 p-8 text-center text-sm text-muted-foreground">
+            No people yet. Add the first person above.
+          </div>
         ) : (
           <DataTable<PeopleRow, unknown>
             columns={columns}

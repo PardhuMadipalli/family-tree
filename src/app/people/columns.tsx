@@ -56,9 +56,9 @@ function ViewPersonDialog({ person }: { person: PeopleRow }) {
         </DialogHeader>
         <div className="flex items-center gap-2 text-muted-foreground">
           {person.gender === "male" ? (
-            <Mars className="size-4 text-blue-600" />
+            <Mars className="size-4 text-[var(--male)]" />
           ) : person.gender === "female" ? (
-            <Venus className="size-4 text-pink-600" />
+            <Venus className="size-4 text-[var(--female)]" />
           ) : (
             <CircleHelp className="size-4" />
           )}
@@ -238,8 +238,10 @@ function DeletePersonButton({ person }: { person: PeopleRow }) {
         const ok = window.confirm("Delete this person? This cannot be undone.");
         if (ok) await deletePerson(person.id);
       }}
-      variant="destructive"
+      variant="ghost"
       size="icon"
+      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+      aria-label="Delete person"
     >
       <Trash className="size-4" />
     </Button>
@@ -252,11 +254,27 @@ export const columns: ColumnDef<PeopleRow>[] = [
     header: "",
     cell: ({ row }) => {
       const g = row.getValue<string>("gender");
-      if (g === "male") return <Mars className="size-4 text-blue-600" aria-label="male" />;
-      if (g === "female") return <Venus className="size-4 text-pink-600" aria-label="female" />;
-      return <CircleHelp className="size-4 text-muted-foreground" aria-label="unknown" />;
+      if (g === "male") {
+        return (
+          <span className="inline-flex items-center justify-center size-7 rounded-full bg-[var(--male)]/15">
+            <Mars className="size-4 text-[var(--male)]" aria-label="male" />
+          </span>
+        );
+      }
+      if (g === "female") {
+        return (
+          <span className="inline-flex items-center justify-center size-7 rounded-full bg-[var(--female)]/15">
+            <Venus className="size-4 text-[var(--female)]" aria-label="female" />
+          </span>
+        );
+      }
+      return (
+        <span className="inline-flex items-center justify-center size-7 rounded-full bg-muted">
+          <CircleHelp className="size-4 text-muted-foreground" aria-label="unknown" />
+        </span>
+      );
     },
-    size: 32,
+    size: 40,
     enableResizing: false,
   },
   {
@@ -267,18 +285,43 @@ export const columns: ColumnDef<PeopleRow>[] = [
   {
     accessorKey: "familyName",
     header: "Family name",
+    cell: ({ row }) => {
+      const v = row.getValue<string | undefined>("familyName");
+      return v ? <span>{v}</span> : <span className="text-muted-foreground/60">—</span>;
+    },
   },
   {
     accessorKey: "birthDate",
     header: "Birth date",
     cell: ({ row }) => {
       const v = row.getValue<string>("birthDate");
-      return v ? new Date(v).toLocaleDateString() : "";
+      return v ? (
+        <span className="tabular-nums">{new Date(v).toLocaleDateString()}</span>
+      ) : (
+        <span className="text-muted-foreground/60">—</span>
+      );
     },
   },
   {
     accessorKey: "spouses",
     header: "Spouse(s)",
+    cell: ({ row }) => {
+      const v = row.getValue<string | undefined>("spouses");
+      if (!v) return <span className="text-muted-foreground/60">—</span>;
+      const names = v.split(",").map((s) => s.trim()).filter(Boolean);
+      return (
+        <div className="flex flex-wrap gap-1">
+          {names.map((n, i) => (
+            <span
+              key={`${n}-${i}`}
+              className="inline-flex items-center rounded-md bg-brand/10 text-brand text-xs px-2 py-0.5 font-medium"
+            >
+              {n}
+            </span>
+          ))}
+        </div>
+      );
+    },
   },
   {
     id: "actions",
@@ -286,7 +329,7 @@ export const columns: ColumnDef<PeopleRow>[] = [
     cell: ({ row }) => {
       const person = row.original;
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <ViewPersonDialog person={person} />
           <EditPersonDialog person={person} />
           <DeletePersonButton person={person} />

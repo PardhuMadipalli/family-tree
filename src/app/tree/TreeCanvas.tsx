@@ -115,14 +115,20 @@ export default function TreeCanvas() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Tree</h2>
+    <div className="space-y-6">
+      <header className="flex items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-semibold tracking-tight">Tree</h2>
+          <p className="text-sm text-muted-foreground">
+            Visualize and export the active family tree.
+          </p>
+        </div>
         <div className="flex items-center gap-2">
           <Button
             onClick={exportPNG}
             disabled={exporting || people.length === 0}
             variant="outline"
+            size="sm"
           >
             Export PNG
           </Button>
@@ -130,14 +136,15 @@ export default function TreeCanvas() {
             onClick={exportPDF}
             disabled={exporting || people.length === 0}
             variant="outline"
+            size="sm"
           >
             Export PDF
           </Button>
         </div>
-      </div>
-      <div ref={containerRef} className="rounded-md overflow-hidden border border-black/10 dark:border-white/10 h-[600px]">
+      </header>
+      <div ref={containerRef} className="rounded-xl overflow-hidden border border-border/70 bg-card shadow-xs h-[640px]">
         {peopleHydrated && relHydrated && people.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-sm text-black/50 dark:text-white/40">
+          <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
             Add people and relationships to see your tree here.
           </div>
         ) : (
@@ -156,7 +163,7 @@ export default function TreeCanvas() {
           edgeTypes={edgeTypes}
           colorMode={theme === "dark" ? "dark" : "light"}
         >
-          <Background />
+          <Background gap={20} size={1} />
           <Controls position="bottom-right" showInteractive={false} />
         </ReactFlow>
         )}

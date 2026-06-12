@@ -7,8 +7,8 @@ import { cn } from '@/lib/utils';
 
 const handlesInvisible = true;
 
-export const personNodeHeight: number = 30;
-export const personNodeWidth: number = 100;
+export const personNodeHeight: number = 34;
+export const personNodeWidth: number = 110;
 
 type PersonNodeData = {
   label: string;
@@ -18,28 +18,39 @@ type PersonNodeData = {
   gender: string;
 };
 
-const backgroundColors = {
-  female: 'bg-red-200 dark:bg-red-900',
-  male: 'bg-blue-200 dark:bg-blue-900',
-  other: 'bg-gray-300 dark:bg-gray-500',
+// Soft tinted backgrounds with a subtle accent border in the matching tone.
+// Tones use the gender accent variables defined in globals.css so light and
+// dark modes stay aligned with the rest of the app.
+const nodeStyles: Record<string, string> = {
+  female:
+    'bg-[var(--female)]/15 border-[var(--female)]/40 text-foreground',
+  male:
+    'bg-[var(--male)]/15 border-[var(--male)]/40 text-foreground',
+  other:
+    'bg-muted border-border text-foreground',
+  unknown:
+    'bg-muted border-border text-foreground',
 };
 
 function PersonNode({ data, selected }: NodeProps) {
   const d = data as PersonNodeData;
+  const tone = nodeStyles[d.gender] ?? nodeStyles.unknown;
   return (
     <div
-      className={cn(backgroundColors[d.gender as keyof typeof backgroundColors],
-        `p-2 rounded-md overflow-hidden`,
-        d?.dimmed && "opacity-50 grayscale-30",
-        selected && "border-1 border-blue-500",
-        "flex flex-col items-center justify-center"
+      className={cn(
+        'rounded-md border shadow-xs flex items-center justify-center px-2 transition',
+        tone,
+        d?.dimmed && 'opacity-50 grayscale-30',
+        selected && 'ring-2 ring-brand ring-offset-1 ring-offset-background border-brand'
       )}
       style={{
         width: personNodeWidth,
         height: personNodeHeight,
       }}
     >
-      <div className="font-medium text-[0.6rem] text-gray-800 dark:text-white/85 text-center">{d?.label}</div>
+      <div className="font-medium text-[0.65rem] leading-tight text-center">
+        {d?.label}
+      </div>
 
       {/* Handles for parent/child vertical edges */}
       <Handle type="source" position={Position.Bottom} id="bottom" className={cn(handlesInvisible && 'opacity-0')} />
@@ -52,5 +63,3 @@ function PersonNode({ data, selected }: NodeProps) {
 }
 
 export default memo(PersonNode);
-
-

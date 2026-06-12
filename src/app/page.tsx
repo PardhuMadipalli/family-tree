@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePeopleStore } from "@/lib/store";
 import { useRelationsStore } from "@/lib/relationsStore";
 import { useEffect } from "react";
-import { Users, GitBranch, TreePalm } from "lucide-react";
+import { Users, Heart, GitBranch, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const { people, isHydrated, hydrate } = usePeopleStore();
@@ -24,82 +25,90 @@ export default function Home() {
     links: parentChildLinks.length,
   } : null;
 
+  const steps = [
+    {
+      n: 1,
+      title: "Add People",
+      description: "Add family members with names, birth dates, and gender.",
+      href: "/people",
+    },
+    {
+      n: 2,
+      title: "Define Relationships",
+      description: "Create unions between partners and link parents to children.",
+      href: "/relations",
+    },
+    {
+      n: 3,
+      title: "View Tree",
+      description: "Visualize your family tree and export it as PNG or PDF.",
+      href: "/tree",
+    },
+  ];
+
   return (
-    <div className="space-y-8">
-      <div className="space-y-3">
-        <h1 className="text-2xl font-semibold">Welcome to Family Tree</h1>
-        <p className="text-sm text-black/70 dark:text-white/70 max-w-prose">
-          Build your family tree locally in your browser. Start by adding people,
-          then define relationships, and visualize the tree.
+    <div className="space-y-12">
+      <section className="space-y-4 max-w-2xl">
+        <h1 className="text-4xl font-semibold tracking-tight">Welcome to Family Tree</h1>
+        <p className="text-base text-muted-foreground leading-relaxed">
+          Build your family tree locally in your browser. Add people, define
+          relationships, and visualize how everyone connects.
         </p>
-      </div>
+      </section>
 
       {stats && stats.people > 0 && (
-        <div className="flex gap-4">
-          <div className="flex items-center gap-2 rounded-md border border-black/10 dark:border-white/10 px-4 py-3">
-            <Users className="size-4 text-blue-500" />
-            <span className="text-sm">{stats.people} people</span>
+        <section className="rounded-xl border border-border/70 bg-card shadow-xs overflow-hidden">
+          <div className="grid grid-cols-3 divide-x divide-border/70">
+            <Stat icon={<Users className="size-4" />} value={stats.people} label="people" />
+            <Stat icon={<Heart className="size-4" />} value={stats.unions} label={stats.unions === 1 ? "union" : "unions"} />
+            <Stat icon={<GitBranch className="size-4" />} value={stats.links} label={stats.links === 1 ? "parent-child link" : "parent-child links"} />
           </div>
-          <div className="flex items-center gap-2 rounded-md border border-black/10 dark:border-white/10 px-4 py-3">
-            <GitBranch className="size-4 text-green-500" />
-            <span className="text-sm">{stats.unions} unions</span>
-          </div>
-          <div className="flex items-center gap-2 rounded-md border border-black/10 dark:border-white/10 px-4 py-3">
-            <TreePalm className="size-4 text-amber-500" />
-            <span className="text-sm">{stats.links} parent-child links</span>
-          </div>
-        </div>
+        </section>
       )}
 
-      <div className="space-y-4">
-        <h2 className="text-sm font-medium text-black/50 dark:text-white/50 uppercase tracking-wide">Get started</h2>
-        <div className="grid grid-cols-3 gap-4 max-w-2xl">
-          <Link
-            href="/people"
-            className="group rounded-lg border border-black/10 dark:border-white/10 p-4 hover:bg-black/5 dark:hover:bg-white/5 transition space-y-2"
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-black/40 dark:text-white/30">1</span>
-              <span className="font-medium text-sm">Add People</span>
-            </div>
-            <p className="text-xs text-black/50 dark:text-white/40">Add family members with names, birth dates, and gender.</p>
-          </Link>
-          <Link
-            href="/relations"
-            className="group rounded-lg border border-black/10 dark:border-white/10 p-4 hover:bg-black/5 dark:hover:bg-white/5 transition space-y-2"
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-black/40 dark:text-white/30">2</span>
-              <span className="font-medium text-sm">Define Relationships</span>
-            </div>
-            <p className="text-xs text-black/50 dark:text-white/40">Create unions between partners and link parents to children.</p>
-          </Link>
-          <Link
-            href="/tree"
-            className="group rounded-lg border border-black/10 dark:border-white/10 p-4 hover:bg-black/5 dark:hover:bg-white/5 transition space-y-2"
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-black/40 dark:text-white/30">3</span>
-              <span className="font-medium text-sm">View Tree</span>
-            </div>
-            <p className="text-xs text-black/50 dark:text-white/40">Visualize your family tree and export it as PNG or PDF.</p>
-          </Link>
+      <section className="space-y-4">
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Get started</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {steps.map((step) => (
+            <Link
+              key={step.href}
+              href={step.href}
+              className="group relative rounded-xl border border-border/70 bg-card p-5 shadow-xs hover:border-brand/40 hover:shadow-md transition flex flex-col gap-3"
+            >
+              <span className="inline-flex items-center justify-center size-8 rounded-full bg-brand/10 text-brand font-semibold text-sm">
+                {step.n}
+              </span>
+              <div className="space-y-1">
+                <div className="font-medium">{step.title}</div>
+                <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
+              </div>
+              <ArrowRight className="size-4 text-muted-foreground/60 group-hover:text-brand group-hover:translate-x-0.5 transition mt-auto" />
+            </Link>
+          ))}
         </div>
-      </div>
+      </section>
 
-      <div className="flex gap-3">
-        <Link
-          href="/people"
-          className="inline-flex items-center rounded-md px-4 py-2 bg-white text-black dark:bg-white dark:text-black font-medium text-sm hover:bg-white/90 transition"
-        >
-          Go to People
-        </Link>
-        <Link
-          href="/tree"
-          className="inline-flex items-center rounded-md px-4 py-2 border border-black/10 dark:border-white/15 hover:bg-black/5 dark:hover:bg-white/10 transition text-sm"
-        >
-          View Tree
-        </Link>
+      <section className="flex flex-wrap gap-3">
+        <Button asChild>
+          <Link href="/people">Go to People</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/tree">View Tree</Link>
+        </Button>
+      </section>
+    </div>
+  );
+}
+
+function Stat({ icon, value, label }: { icon: React.ReactNode; value: number; label: string }) {
+  return (
+    <div className="flex items-center gap-3 px-5 py-4">
+      <span className="inline-flex items-center justify-center size-9 rounded-md bg-brand/10 text-brand">
+        {icon}
+      </span>
+      <div className="flex flex-col">
+        <span className="text-xl font-semibold tabular-nums leading-tight">{value}</span>
+        <span className="text-xs text-muted-foreground">{label}</span>
       </div>
     </div>
   );

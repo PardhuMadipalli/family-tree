@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Check, ChevronsUpDown, Trash } from 'lucide-react';
+import { Check, ChevronsUpDown, Trash, Heart, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   AlertDialog,
@@ -72,78 +72,107 @@ export default function RelationsPage() {
 
   return (
     <div className="space-y-8">
-      <h2 className="text-xl font-semibold">Relationships</h2>
+      <header className="space-y-1">
+        <h2 className="text-2xl font-semibold tracking-tight">Relationships</h2>
+        <p className="text-sm text-muted-foreground">
+          Connect partners with unions, and link parents to their children.
+        </p>
+      </header>
 
-      <section className="space-y-3">
-        <div className="flex items-baseline gap-2">
-          <h3 className="font-medium">Create union (partners)</h3>
+      <section className="rounded-xl border border-border/70 bg-card shadow-xs">
+        <div className="flex items-center justify-between border-b border-border/70 px-5 py-3">
+          <div className="flex items-center gap-2">
+            <Heart className="size-4 text-brand" />
+            <h3 className="text-sm font-medium">Create union (partners)</h3>
+          </div>
           {unions.length > 0 && (
-            <span className="text-xs text-muted-foreground">{unions.length} union{unions.length !== 1 ? 's' : ''}</span>
+            <span className="inline-flex items-center rounded-full bg-brand/10 text-brand text-xs px-2 py-0.5 font-medium">
+              {unions.length} {unions.length === 1 ? 'union' : 'unions'}
+            </span>
           )}
         </div>
-        <div className="grid md:grid-cols-3 gap-3 items-end">
-          <SelectPerson value={partnerA} onChange={setPartnerA} label="Partner A" people={people} />
-          <SelectPerson value={partnerB} onChange={setPartnerB} label="Partner B" people={people} />
-          <Button
-            disabled={!canCreateUnion}
-            onClick={async () => {
-              await addUnion([partnerA, partnerB]);
-              setPartnerA('');
-              setPartnerB('');
-            }}
-            variant="default"
-          >
-            Create union
-          </Button>
-        </div>
-        <div className="space-y-1 max-w-2xl">
-          {unions.map((u) => (
-            <div key={u.id} className="flex items-center justify-between gap-2 rounded-md border border-black/5 dark:border-white/5 px-3 py-2 text-sm hover:bg-muted/30 transition">
-              <span>
-                {u.partnerIds.map((id) => people.find((p) => p.id === id)?.givenName || 'Unknown').join(' + ')}
-              </span>
-              <DeleteUnionDialog union={u} people={people} onDelete={deleteUnion} />
+        <div className="p-5 space-y-4">
+          <div className="grid md:grid-cols-3 gap-3 items-end">
+            <SelectPerson value={partnerA} onChange={setPartnerA} label="Partner A" people={people} />
+            <SelectPerson value={partnerB} onChange={setPartnerB} label="Partner B" people={people} />
+            <Button
+              disabled={!canCreateUnion}
+              onClick={async () => {
+                await addUnion([partnerA, partnerB]);
+                setPartnerA('');
+                setPartnerB('');
+              }}
+              variant="default"
+            >
+              Create union
+            </Button>
+          </div>
+          {unions.length > 0 && (
+            <div className="space-y-1.5 max-w-2xl pt-1">
+              {unions.map((u) => (
+                <div key={u.id} className="flex items-center justify-between gap-2 rounded-lg border border-border/60 bg-background/40 px-3 py-2 text-sm hover:bg-muted/40 transition">
+                  <div className="flex items-center gap-2">
+                    <Heart className="size-3.5 text-brand/70" />
+                    <span>
+                      {u.partnerIds.map((id) => people.find((p) => p.id === id)?.givenName || 'Unknown').join(' + ')}
+                    </span>
+                  </div>
+                  <DeleteUnionDialog union={u} people={people} onDelete={deleteUnion} />
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       </section>
 
-      <section className="space-y-3">
-        <div className="flex items-baseline gap-2">
-          <h3 className="font-medium">Create parent → child link</h3>
+      <section className="rounded-xl border border-border/70 bg-card shadow-xs">
+        <div className="flex items-center justify-between border-b border-border/70 px-5 py-3">
+          <div className="flex items-center gap-2">
+            <ArrowRight className="size-4 text-brand" />
+            <h3 className="text-sm font-medium">Create parent → child link</h3>
+          </div>
           {parentChildLinks.length > 0 && (
-            <span className="text-xs text-muted-foreground">{parentChildLinks.length} link{parentChildLinks.length !== 1 ? 's' : ''}</span>
+            <span className="inline-flex items-center rounded-full bg-brand/10 text-brand text-xs px-2 py-0.5 font-medium">
+              {parentChildLinks.length} {parentChildLinks.length === 1 ? 'link' : 'links'}
+            </span>
           )}
         </div>
-        <div className="grid md:grid-cols-4 gap-3 items-end">
-          <SelectPerson value={parent1} onChange={setParent1} label="Parent 1" people={people} />
-          <SelectPerson value={parent2} onChange={setParent2} label="Parent 2 (optional)" people={people} />
-          <SelectPerson value={child} onChange={setChild} label="Child" people={people} />
-          <Button
-            disabled={!canCreatePC}
-            onClick={async () => {
-              const parents = [parent1, parent2].filter(Boolean);
-              await addParentChildLink(parents as string[], child);
-              setParent1('');
-              setParent2('');
-              setChild('');
-            }}
-            variant="default"
-          >
-            Link parents → child
-          </Button>
-        </div>
-        <div className="space-y-1 max-w-2xl">
-          {parentChildLinks.map((l) => (
-            <div key={l.id} className="flex items-center justify-between gap-2 rounded-md border border-black/5 dark:border-white/5 px-3 py-2 text-sm hover:bg-muted/30 transition">
-              <span>
-                {(l.parentIds.map((id) => people.find((p) => p.id === id)?.givenName || 'Unknown').join(' & '))}
-                {' → '}
-                {people.find((p) => p.id === l.childId)?.givenName || 'Unknown'}
-              </span>
-              <DeleteParentChildLinkDialog link={l} people={people} onDelete={deleteParentChildLink} />
+        <div className="p-5 space-y-4">
+          <div className="grid md:grid-cols-4 gap-3 items-end">
+            <SelectPerson value={parent1} onChange={setParent1} label="Parent 1" people={people} />
+            <SelectPerson value={parent2} onChange={setParent2} label="Parent 2 (optional)" people={people} />
+            <SelectPerson value={child} onChange={setChild} label="Child" people={people} />
+            <Button
+              disabled={!canCreatePC}
+              onClick={async () => {
+                const parents = [parent1, parent2].filter(Boolean);
+                await addParentChildLink(parents as string[], child);
+                setParent1('');
+                setParent2('');
+                setChild('');
+              }}
+              variant="default"
+            >
+              Link parents → child
+            </Button>
+          </div>
+          {parentChildLinks.length > 0 && (
+            <div className="space-y-1.5 max-w-2xl pt-1">
+              {parentChildLinks.map((l) => (
+                <div key={l.id} className="flex items-center justify-between gap-2 rounded-lg border border-border/60 bg-background/40 px-3 py-2 text-sm hover:bg-muted/40 transition">
+                  <div className="flex items-center gap-2">
+                    <ArrowRight className="size-3.5 text-brand/70" />
+                    <span>
+                      {(l.parentIds.map((id) => people.find((p) => p.id === id)?.givenName || 'Unknown').join(' & '))}
+                      <span className="text-muted-foreground"> → </span>
+                      <span className="font-medium">{people.find((p) => p.id === l.childId)?.givenName || 'Unknown'}</span>
+                    </span>
+                  </div>
+                  <DeleteParentChildLinkDialog link={l} people={people} onDelete={deleteParentChildLink} />
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       </section>
     </div>
@@ -166,7 +195,7 @@ function DeleteUnionDialog({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="icon">
+        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive hover:bg-destructive/10" aria-label="Delete union">
           <Trash className="size-4" />
         </Button>
       </AlertDialogTrigger>
@@ -210,7 +239,7 @@ function DeleteParentChildLinkDialog({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="icon">
+        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive hover:bg-destructive/10" aria-label="Delete parent-child link">
           <Trash className="size-4" />
         </Button>
       </AlertDialogTrigger>
