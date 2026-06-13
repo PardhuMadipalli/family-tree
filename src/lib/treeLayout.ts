@@ -1,12 +1,37 @@
 import type { Edge, Node } from '@xyflow/react';
 import type { ParentChildV1, PersonV1, UnionV1 } from './domain';
 import { EdgeType } from './edgeTypes';
-import { formatFuzzyDate } from './fuzzyDate';
+import { fuzzyAge, parseFuzzyDate } from './fuzzyDate';
 import { NodeType } from './nodeTypes';
 import { unionNodeHeight, unionNodeWidth } from '@/app/tree/UnionNode';
 import { personNodeHeight, personNodeWidth } from '@/app/tree/PersonNode';
 
 type PersonById = Record<string, PersonV1>;
+
+// ---------------------------------------------------------------------------
+// Person node sublabel — compact "1942 – 2010 · 68" / "1985 · 41" / "b. Mar 1985"
+// rendered under the name. Uses year-only formatting so the line stays short
+// even if the underlying FuzzyDate has full precision.
+// ---------------------------------------------------------------------------
+function buildPersonSublabel(person: PersonV1): string | undefined {
+  const birth = parseFuzzyDate(person.birthDate);
+  const death = parseFuzzyDate(person.deathDate);
+  if (!birth && !death) return undefined;
+
+  const birthYear = birth ? String(birth.year) : '?';
+  if (death) {
+    const deathYear = String(death.year);
+    const age = fuzzyAge(person.birthDate, person.deathDate);
+    return age !== undefined
+      ? `${birthYear} – ${deathYear} · ${age}`
+      : `${birthYear} – ${deathYear}`;
+  }
+  if (birth) {
+    const age = fuzzyAge(person.birthDate);
+    return age !== undefined ? `${birthYear} · ${age}` : `b. ${birthYear}`;
+  }
+  return undefined;
+}
 
 // Graph structure types
 export type GraphNode = {
@@ -184,7 +209,7 @@ export function buildGraphStructure(
         label: person.givenName,
         fullName: `${person.givenName}${person.familyName ? ' ' + person.familyName : ''}`,
         familyName: person.familyName,
-        sublabel: person.birthDate ? `b. ${formatFuzzyDate(person.birthDate)}` : undefined,
+        sublabel: buildPersonSublabel(person),
         background: person.gender === 'female' ? '#fce7f3' : person.gender === 'male' ? '#dbeafe' : '#e5e7eb',
         gender: person.gender,
         dimmed: false,

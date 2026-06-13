@@ -1,4 +1,8 @@
-import { UnionChildEdge } from "@/app/tree/CustomEdges";
+import {
+  ParentChildEdge,
+  SpouseUnionEdge,
+  UnionChildEdge,
+} from "@/app/tree/CustomEdges";
 
 export enum EdgeType {
   ParentChild = 'parent-child',
@@ -7,7 +11,7 @@ export enum EdgeType {
 }
 
 export const edgeTypes = {
-  [EdgeType.ParentChild]: UnionChildEdge,
-  [EdgeType.SpouseUnion]: UnionChildEdge,
+  [EdgeType.ParentChild]: ParentChildEdge,
+  [EdgeType.SpouseUnion]: SpouseUnionEdge,
   [EdgeType.UnionChild]: UnionChildEdge,
-}
+};
