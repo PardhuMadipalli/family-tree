@@ -12,6 +12,8 @@ import { useEffect, useMemo, useState } from "react";
 import { columns, type PeopleRow } from "./columns";
 import { MultiSelect } from "@/components/multi-select";
 import { EnhancedMultiSelect } from "@/components/EnhancedMultiSelect";
+import { FuzzyDateInput } from "@/components/FuzzyDateInput";
+import { compareFuzzyDates } from "@/lib/fuzzyDate";
 
 type Gender = "male" | "female" | "other" | "unknown";
 
@@ -129,22 +131,32 @@ export default function PeoplePage() {
             </div>
             <div className="flex flex-col gap-1.5">
               <CustomLabel label="Birth date" htmlFor="birthDate" />
-              <Input
+              <FuzzyDateInput
                 id="birthDate"
-                type="date"
                 value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
+                onChange={setBirthDate}
+                ariaLabel="Birth date"
               />
             </div>
             <div className="flex flex-col gap-1.5">
               <CustomLabel label="Death date" htmlFor="deathDate" />
-              <Input
+              <FuzzyDateInput
                 id="deathDate"
-                type="date"
                 value={deathDate}
-                onChange={(e) => setDeathDate(e.target.value)}
-                min={birthDate || undefined}
+                onChange={setDeathDate}
+                ariaLabel="Death date"
               />
+              {(() => {
+                const cmp = compareFuzzyDates(birthDate, deathDate);
+                if (cmp !== undefined && cmp > 0) {
+                  return (
+                    <span className="text-xs text-destructive">
+                      Death date is before birth date.
+                    </span>
+                  );
+                }
+                return null;
+              })()}
             </div>
             <div className="flex flex-col gap-1.5">
               <CustomLabel label="Gender" htmlFor="gender" />

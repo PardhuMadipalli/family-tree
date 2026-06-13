@@ -1,6 +1,7 @@
 import type { Edge, Node } from '@xyflow/react';
 import type { ParentChildV1, PersonV1, UnionV1 } from './domain';
 import { EdgeType } from './edgeTypes';
+import { formatFuzzyDate } from './fuzzyDate';
 import { NodeType } from './nodeTypes';
 import { unionNodeHeight, unionNodeWidth } from '@/app/tree/UnionNode';
 import { personNodeHeight, personNodeWidth } from '@/app/tree/PersonNode';
@@ -183,7 +184,7 @@ export function buildGraphStructure(
         label: person.givenName,
         fullName: `${person.givenName}${person.familyName ? ' ' + person.familyName : ''}`,
         familyName: person.familyName,
-        sublabel: person.birthDate ? `b. ${person.birthDate}` : undefined,
+        sublabel: person.birthDate ? `b. ${formatFuzzyDate(person.birthDate)}` : undefined,
         background: person.gender === 'female' ? '#fce7f3' : person.gender === 'male' ? '#dbeafe' : '#e5e7eb',
         gender: person.gender,
         dimmed: false,

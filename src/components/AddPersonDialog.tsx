@@ -15,6 +15,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { usePeopleStore } from "@/lib/store";
+import { FuzzyDateInput } from "@/components/FuzzyDateInput";
+import { compareFuzzyDates } from "@/lib/fuzzyDate";
 
 type Gender = "male" | "female" | "other" | "unknown";
 
@@ -119,26 +121,38 @@ export function AddPersonDialog({ onPersonAdded, trigger, open: controlledOpen, 
               <Label htmlFor="dialog-birthDate" className="text-right">
                 Birth Date
               </Label>
-              <Input
-                id="dialog-birthDate"
-                type="date"
-                value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
-                className="col-span-3"
-              />
+              <div className="col-span-3">
+                <FuzzyDateInput
+                  id="dialog-birthDate"
+                  value={birthDate}
+                  onChange={setBirthDate}
+                  ariaLabel="Birth date"
+                />
+              </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="dialog-deathDate" className="text-right">
                 Death Date
               </Label>
-              <Input
-                id="dialog-deathDate"
-                type="date"
-                value={deathDate}
-                onChange={(e) => setDeathDate(e.target.value)}
-                min={birthDate || undefined}
-                className="col-span-3"
-              />
+              <div className="col-span-3 space-y-1">
+                <FuzzyDateInput
+                  id="dialog-deathDate"
+                  value={deathDate}
+                  onChange={setDeathDate}
+                  ariaLabel="Death date"
+                />
+                {(() => {
+                  const cmp = compareFuzzyDates(birthDate, deathDate);
+                  if (cmp !== undefined && cmp > 0) {
+                    return (
+                      <p className="text-xs text-destructive">
+                        Death date is before birth date.
+                      </p>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="dialog-gender" className="text-right">

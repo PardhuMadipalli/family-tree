@@ -1,11 +1,15 @@
 export type Id = string;
 
+// Date fields below use the FuzzyDate shape ("YYYY", "YYYY-MM", or
+// "YYYY-MM-DD"). See `src/lib/fuzzyDate.ts` for parse/format helpers. Plain
+// `string` is kept here so the portable export envelope stays unchanged and
+// older `YYYY-MM-DD` data continues to validate.
 export interface PersonV1 {
   id: Id;
   givenName: string;
   familyName?: string;
-  birthDate?: string; // ISO date
-  deathDate?: string; // ISO date
+  birthDate?: string; // FuzzyDate
+  deathDate?: string; // FuzzyDate
   gender?: 'male' | 'female' | 'other' | 'unknown';
   notes?: string;
   createdAt: string; // ISO
@@ -15,8 +19,8 @@ export interface PersonV1 {
 export interface UnionV1 {
   id: Id;
   partnerIds: Id[]; // typically 2
-  startDate?: string; // ISO
-  endDate?: string; // ISO
+  startDate?: string; // FuzzyDate
+  endDate?: string; // FuzzyDate
   notes?: string;
   createdAt: string; // ISO
   updatedAt: string; // ISO

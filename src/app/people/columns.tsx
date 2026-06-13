@@ -6,10 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type { PersonV1 } from "@/lib/domain";
+import { compareFuzzyDates, formatFuzzyDate, fuzzyAge } from "@/lib/fuzzyDate";
 import { usePeopleStore } from "@/lib/store";
 import { ColumnDef } from "@tanstack/react-table";
 import { Baby, CalendarClock, CircleHelp, Cross, Eye, Mars, Pencil, Trash, UsersRound, Venus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { FuzzyDateInput } from "@/components/FuzzyDateInput";
 
 type Gender = "male" | "female" | "other" | "unknown";
 
@@ -20,18 +22,10 @@ export type PeopleRow = Pick<PersonV1, "id" | "givenName" | "familyName" | "birt
 };
 
 function deriveAge(birthDate?: string, deathDate?: string) {
-  if (!birthDate) return undefined;
-  const d = new Date(birthDate);
-  if (Number.isNaN(d.getTime())) return undefined;
-  // If a deathDate exists, age represents lifespan (age at death).
-  // Otherwise it's the person's current age.
-  const ref = deathDate ? new Date(deathDate) : new Date();
-  if (Number.isNaN(ref.getTime())) return undefined;
-  let age = ref.getFullYear() - d.getFullYear();
-  const hasHadBirthdayThisYear =
-    ref.getMonth() > d.getMonth() || (ref.getMonth() === d.getMonth() && ref.getDate() >= d.getDate());
-  if (!hasHadBirthdayThisYear) age -= 1;
-  return age;
+  // FuzzyDate-aware age computation. Handles year-only inputs by falling
+  // back to a simple year diff; handles full dates with the usual
+  // "has-had-birthday-this-year" adjustment.
+  return fuzzyAge(birthDate, deathDate);
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -69,13 +63,13 @@ function ViewPersonDialog({ person }: { person: PeopleRow }) {
           {person.birthDate ? (
             <span className="inline-flex items-center gap-1 ml-3">
               <CalendarClock className="size-4" />
-              <span>b. {new Date(person.birthDate).toLocaleDateString()}</span>
+              <span>b. {formatFuzzyDate(person.birthDate)}</span>
             </span>
           ) : null}
           {person.deathDate ? (
             <span className="inline-flex items-center gap-1 ml-3">
               <Cross className="size-4" />
-              <span>d. {new Date(person.deathDate).toLocaleDateString()}</span>
+              <span>d. {formatFuzzyDate(person.deathDate)}</span>
             </span>
           ) : null}
           {(() => {
@@ -176,23 +170,31 @@ function EditPersonDialog({ person }: { person: PeopleRow }) {
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Birth date">
-              <Input
-                type="date"
+              <FuzzyDateInput
                 value={draft.birthDate}
-                onChange={(e) => setDraft((d) => ({ ...d, birthDate: e.target.value }))}
-                className="h-9 w-full rounded-md border border-black/15 dark:border-white/15 px-2 bg-transparent"
+                onChange={(v) => setDraft((d) => ({ ...d, birthDate: v }))}
+                ariaLabel="Birth date"
               />
             </Field>
             <Field label="Death date">
-              <Input
-                type="date"
+              <FuzzyDateInput
                 value={draft.deathDate}
-                onChange={(e) => setDraft((d) => ({ ...d, deathDate: e.target.value }))}
-                min={draft.birthDate || undefined}
-                className="h-9 w-full rounded-md border border-black/15 dark:border-white/15 px-2 bg-transparent"
+                onChange={(v) => setDraft((d) => ({ ...d, deathDate: v }))}
+                ariaLabel="Death date"
               />
             </Field>
           </div>
+          {(() => {
+            const cmp = compareFuzzyDates(draft.birthDate, draft.deathDate);
+            if (cmp !== undefined && cmp > 0) {
+              return (
+                <p className="text-xs text-destructive -mt-1">
+                  Death date is before birth date.
+                </p>
+              );
+            }
+            return null;
+          })()}
           {(() => {
             const age = deriveAge(draft.birthDate, draft.deathDate);
             if (age === undefined) return null;
@@ -321,7 +323,7 @@ export const columns: ColumnDef<PeopleRow>[] = [
     cell: ({ row }) => {
       const v = row.getValue<string>("birthDate");
       return v ? (
-        <span className="tabular-nums">{new Date(v).toLocaleDateString()}</span>
+        <span className="tabular-nums">{formatFuzzyDate(v)}</span>
       ) : (
         <span className="text-muted-foreground/60">—</span>
       );
@@ -333,7 +335,7 @@ export const columns: ColumnDef<PeopleRow>[] = [
     cell: ({ row }) => {
       const v = row.getValue<string>("deathDate");
       return v ? (
-        <span className="tabular-nums">{new Date(v).toLocaleDateString()}</span>
+        <span className="tabular-nums">{formatFuzzyDate(v)}</span>
       ) : (
         <span className="text-muted-foreground/60">—</span>
       );
